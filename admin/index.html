@@ -4,27 +4,30 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>WayWealth — Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 :root{--primary:#0B1D3A;--accent:#0E9F6E;--bg:#f1f5f9;--card:#fff;--border:#e2e8f0;--muted:#64748b;--radius:14px}
 *{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:#0f172a}
 a{color:inherit;text-decoration:none}
-.btn{padding:10px 16px;border-radius:10px;font-weight:600;font-size:13px;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:6px}
-.btn-primary{background:var(--accent);color:#fff}.btn-secondary{background:#fff;border:1px solid var(--border)}
-.btn-danger{background:#ef4444;color:#fff}
-.input,select,textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;outline:none}
-.input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+.btn{padding:10px 16px;border-radius:10px;font-weight:600;font-size:13px;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:6px;transition:.2s}
+.btn-primary{background:var(--accent);color:#fff}.btn-primary:hover{filter:brightness(1.08)}
+.btn-secondary{background:#fff;border:1.5px solid var(--border)}.btn-danger{background:#ef4444;color:#fff}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.input,select,textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;outline:none;transition:.15s}
+.input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,159,110,0.1)}
 .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
 .login-wrap{min-height:100vh;display:grid;place-items:center;padding:24px}
 .login-card{width:100%;max-width:400px}
-.sidebar{position:fixed;left:0;top:0;bottom:0;width:250px;background:var(--primary);color:#cbd5e1;padding:20px;display:flex;flex-direction:column;gap:6px;overflow:auto}
-.sidebar .logo{color:#fff;font-weight:900;font-size:18px;margin-bottom:12px}
-.sidebar a{padding:9px 12px;border-radius:10px;font-size:12.5px;font-weight:500;cursor:pointer;display:flex;gap:8px;align-items:center}
-.sidebar a.active,.sidebar a:hover{background:rgba(255,255,255,0.12);color:#fff}
-.main{margin-left:250px;padding:24px;min-height:100vh}
-.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:270px;background:var(--primary);color:#cbd5e1;padding:18px 14px;display:flex;flex-direction:column;gap:4px;overflow:auto;z-index:10}
+.sidebar .logo{color:#fff;font-weight:900;font-size:17px;margin-bottom:6px;padding:0 8px}
+.sidebar .logo small{font-weight:500;color:#94a3b8;font-size:11px;display:block;margin-top:2px}
+.sidebar .section-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#64748b;font-weight:700;margin:14px 8px 6px}
+.sidebar a{padding:9px 10px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;display:flex;gap:8px;align-items:center;transition:.15s}
+.sidebar a.active,.sidebar a:hover{background:rgba(255,255,255,0.11);color:#fff}
+.main{margin-left:270px;padding:24px;min-height:100vh}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;flex-wrap:wrap;gap:10px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:900px){.sidebar{position:static;width:auto}.main{margin-left:0}.grid2{grid-template-columns:1fr}}
+@media(max-width:1000px){.sidebar{position:static;width:auto}.main{margin-left:0}.grid2{grid-template-columns:1fr}}
 .table-wrap{overflow:auto}
 table{width:100%;border-collapse:collapse;font-size:13px}
 th{ text-align:left;padding:10px 12px;background:#f8fafc;border-bottom:1px solid var(--border);font-weight:700;white-space:nowrap}
@@ -32,7 +35,7 @@ td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
 .badge{padding:3px 8px;border-radius:999px;font-size:11px;font-weight:700}
 .badge-new{background:#eff6ff;color:#2563eb}.badge-contacted{background:#fef3c7;color:#92400e}.badge-booked{background:#dcfce7;color:#166534}.badge-closed{background:#f1f5f9;color:#64748b}
 .gallery-admin{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
-.g-item{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.g-item{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;position:relative}
 .g-item img,.g-item video{width:100%;height:140px;object-fit:cover}
 .g-item .cap{padding:8px 10px;font-size:12px}
 .tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
@@ -51,9 +54,30 @@ td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
 .slot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
 @media(max-width:900px){.slot-grid{grid-template-columns:repeat(2,1fr)}}
 @media(max-width:600px){.slot-grid{grid-template-columns:1fr}}
-.slot-card{background:#fff;border:1.5px dashed var(--border);border-radius:12px;overflow:hidden;min-height:200px;display:flex;flex-direction:column}
+.slot-card{background:#fff;border:1.5px dashed var(--border);border-radius:12px;overflow:hidden;min-height:180px;display:flex;flex-direction:column}
 .slot-card.filled{border-style:solid}
 .slot-card img,.slot-card video{width:100%;height:140px;object-fit:cover}
+/* Section-aligned */
+.section-card{border-left:4px solid var(--accent);margin-top:16px}
+.section-card .sec-head{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px}
+.section-card .sec-title{font-weight:800;font-size:16px;display:flex;gap:8px;align-items:center}
+.section-card .sec-sub{font-size:12px;color:var(--muted);margin-top:2px}
+.progress{height:6px;background:#e2e8f0;border-radius:999px;overflow:hidden;margin-top:8px;display:none}
+.progress-bar{height:100%;background:var(--accent);width:0%;transition:width .2s}
+.preview-pill{display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:999px;font-size:11px;font-weight:700;background:#f8fafc;border:1px solid var(--border)}
+.theme-preset{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+@media(max-width:700px){.theme-preset{grid-template-columns:repeat(2,1fr)}}
+.preset{border:2px solid var(--border);border-radius:12px;padding:12px;cursor:pointer;transition:.15s;background:#fff}
+.preset.active{border-color:var(--accent);box-shadow:0 0 0 3px rgba(14,159,110,.15)}
+.preset-dots{display:flex;gap:6px;margin-top:8px}
+.preset-dot{width:22px;height:22px;border-radius:50%;border:2px solid #fff;box-shadow:0 0 0 1px #e2e8f0}
+.live-preview{border:1px solid var(--border);border-radius:12px;overflow:hidden;background:#fff;margin-top:12px}
+.live-preview .lp-nav{height:48px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.live-preview .lp-hero{padding:20px 16px;display:flex;gap:16px;align-items:center}
+.url-row{display:flex;gap:8px;flex-wrap:wrap}
+.url-row .input{flex:1;min-width:160px}
+.dropzone{border:2px dashed var(--border);border-radius:12px;padding:18px;text-align:center;background:#f8fafc;cursor:pointer;transition:.15s}
+.dropzone.dragover{background:#f0fdf4;border-color:var(--accent)}
 </style>
 </head>
 <body>
@@ -73,16 +97,28 @@ td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
 
 <div id="appView" class="hidden">
   <div class="sidebar" id="sidebar">
-    <div class="logo">WayWealth — Admin</div>
+    <div class="logo">WayWealth — Admin <small>Section-aligned • Instant upload</small></div>
+    <div class="section-label">Overview</div>
     <a data-tab="analytics" class="active" onclick="switchTab('analytics')">📊 Analytics</a>
-    <a data-tab="content" onclick="switchTab('content')">✏️ Content Editor</a>
-    <a data-tab="website" onclick="switchTab('website')">🖼️ Website Images</a>
-    <a data-tab="media" onclick="switchTab('media')">🗂️ Portfolio / Proof</a>
+    <a data-tab="leads" onclick="switchTab('leads')">👥 Leads</a>
+    <div class="section-label">Brand & Theme</div>
+    <a data-tab="brand" onclick="switchTab('brand')">🎨 Brand & Theme</a>
+    <div class="section-label">Frontend Sections (in order)</div>
+    <a data-tab="hero" onclick="switchTab('hero')">🔥 Hero</a>
+    <a data-tab="stats" onclick="switchTab('stats')">📈 Stats Strip</a>
+    <a data-tab="portfolio" onclick="switchTab('portfolio')">🗂️ Portfolio</a>
+    <a data-tab="sales" onclick="switchTab('sales')">💰 Sales Proof</a>
+    <a data-tab="hiw" onclick="switchTab('hiw')">⚙️ How It Works</a>
+    <a data-tab="pricing" onclick="switchTab('pricing')">💳 Pricing</a>
     <a data-tab="reviews" onclick="switchTab('reviews')">⭐ Reviews (4+4)</a>
     <a data-tab="expert" onclick="switchTab('expert')">👨‍💼 Expert (2×2)</a>
-    <a data-tab="testimonials" onclick="switchTab('testimonials')">💬 Testimonials</a>
-    <a data-tab="faqs" onclick="switchTab('faqs')">❓ FAQs</a>
-    <a data-tab="leads" onclick="switchTab('leads')">👥 Leads</a>
+    <a data-tab="faq" onclick="switchTab('faq')">❓ FAQ</a>
+    <a data-tab="cta" onclick="switchTab('cta')">🎯 CTA & Lead Form</a>
+    <a data-tab="banner" onclick="switchTab('banner')">🚨 Banner & Footer</a>
+    <div class="section-label">Media</div>
+    <a data-tab="website" onclick="switchTab('website')">🖼️ Website Images</a>
+    <a data-tab="testimonials" onclick="switchTab('testimonials')">💬 Text Testimonials</a>
+    <div class="section-label">System</div>
     <a data-tab="settings" onclick="switchTab('settings')">⚙️ Settings</a>
     <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
       <a href="/" target="_blank">🌐 View Live Site</a>
@@ -113,39 +149,60 @@ td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
       <div class="card" style="margin-top:16px"><h4>Traffic Source (from Leads)</h4><div id="sourceBox" style="margin-top:12px"></div></div>
     </div>
 
-    <!-- CONTENT -->
-    <div id="tab-content" class="hidden">
-      <div class="card">
-        <h3>Theme & Brand</h3>
-        <div class="grid2" style="margin-top:14px">
+    <!-- BRAND & THEME -->
+    <div id="tab-brand" class="hidden">
+      <div class="card section-card" style="border-left-color:var(--primary)">
+        <div class="sec-head"><div><div class="sec-title">🎨 Brand & Theme — Advanced</div><div class="sec-sub">Pick a preset or customize. Changes apply instantly to live site via CSS variables.</div></div><span class="preview-pill" id="themePreviewPill">Live Preview</span></div>
+        <div class="theme-preset" id="presetGrid"></div>
+        <div class="grid2" style="margin-top:16px">
           <div><label style="font-size:12px;font-weight:600">Site Name</label><input class="input" id="c_site_name"></div>
-          <div><label style="font-size:12px;font-weight:600">Font Family</label><select id="c_font_family" class="input"><option>Inter</option><option>Poppins</option><option>Outfit</option><option>Manrope</option><option>DM Sans</option></select></div>
+          <div><label style="font-size:12px;font-weight:600">Font Family</label><select id="c_font_family" class="input"><option>Inter</option><option>Poppins</option><option>Outfit</option><option>Manrope</option><option>DM Sans</option><option>Space Grotesk</option><option>Plus Jakarta Sans</option></select></div>
           <div><label style="font-size:12px;font-weight:600">Primary Color</label><input type="color" id="c_color_primary" class="input" style="height:42px;padding:4px"></div>
           <div><label style="font-size:12px;font-weight:600">Accent Color</label><input type="color" id="c_color_accent" class="input" style="height:42px;padding:4px"></div>
           <div><label style="font-size:12px;font-weight:600">Background</label><input type="color" id="c_color_background" class="input" style="height:42px;padding:4px"></div>
           <div><label style="font-size:12px;font-weight:600">Button Color</label><input type="color" id="c_color_button" class="input" style="height:42px;padding:4px"></div>
+          <div><label style="font-size:12px;font-weight:600">Text Color</label><input type="color" id="c_color_text" class="input" style="height:42px;padding:4px"></div>
           <div><label style="font-size:12px;font-weight:600">WhatsApp Number (digits only)</label><input class="input" id="c_whatsapp_number" placeholder="2348123456789"></div>
-          <div><label style="font-size:12px;font-weight:600">Booking Link (Calendly/Cal.com)</label><input class="input" id="c_booking_link"></div>
+          <div style="grid-column:1/-1"><label style="font-size:12px;font-weight:600">WhatsApp Prefilled Message</label><textarea id="c_whatsapp_message" rows="2" class="input"></textarea></div>
+          <div style="grid-column:1/-1"><label style="font-size:12px;font-weight:600">Booking Link (Calendly/Cal.com or #leadForm)</label><input class="input" id="c_booking_link"></div>
         </div>
-        <div style="margin-top:12px"><label style="font-size:12px;font-weight:600">WhatsApp Prefilled Message</label><textarea id="c_whatsapp_message" rows="2" class="input"></textarea></div>
         <div class="grid2" style="margin-top:12px">
-          <div><label style="font-size:12px;font-weight:600">Logo Upload</label><div style="display:flex;gap:8px"><input type="file" id="logoFile" accept="image/*" class="input"><button class="btn btn-secondary" onclick="uploadLogo()">Upload</button></div><div id="logoPreview" style="margin-top:8px"></div></div>
-          <div><label style="font-size:12px;font-weight:600">Favicon Upload</label><div style="display:flex;gap:8px"><input type="file" id="faviconFile" accept="image/*" class="input"><button class="btn btn-secondary" onclick="uploadFavicon()">Upload</button></div><div id="faviconPreview" style="margin-top:8px"></div></div>
+          <div><label style="font-size:12px;font-weight:600">Logo Upload (file or URL)</label><div class="url-row"><input type="file" id="logoFile" accept="image/*" class="input"><button class="btn btn-secondary" onclick="uploadLogo()">Upload</button></div><div class="url-row" style="margin-top:8px"><input id="logoUrl" placeholder="Or paste image URL https://..." class="input"><button class="btn btn-secondary" onclick="uploadLogoUrl()">Add via URL</button></div><div id="logoPreview" style="margin-top:8px"></div><div class="progress" id="logoProgress"><div class="progress-bar" id="logoProgressBar"></div></div></div>
+          <div><label style="font-size:12px;font-weight:600">Favicon Upload</label><div class="url-row"><input type="file" id="faviconFile" accept="image/*" class="input"><button class="btn btn-secondary" onclick="uploadFavicon()">Upload</button></div><div class="url-row" style="margin-top:8px"><input id="faviconUrl" placeholder="Or paste image URL" class="input"><button class="btn btn-secondary" onclick="uploadFaviconUrl()">Add via URL</button></div><div id="faviconPreview" style="margin-top:8px"></div><div class="progress" id="faviconProgress"><div class="progress-bar" id="faviconProgressBar"></div></div></div>
         </div>
+        <div class="live-preview" id="brandLivePreview">
+          <div class="lp-nav" id="lpNav"><strong style="font-size:14px">WayWealth</strong><span style="display:flex;gap:8px"><span class="btn btn-secondary" style="padding:6px 12px;font-size:12px">Book a Call</span><span class="btn btn-primary" style="padding:6px 12px;font-size:12px">WhatsApp Us</span></span></div>
+          <div class="lp-hero" id="lpHero"><div style="flex:1"><div style="font-weight:900;font-size:16px;line-height:1.2">Your Profitable Store — Built For You</div><div style="font-size:12px;color:var(--muted);margin-top:6px">Premium design, ready to sell from day one.</div><div style="margin-top:10px;display:flex;gap:8px"><span class="btn btn-primary" style="padding:8px 14px;font-size:12px">Book a Free Call</span></div></div><div style="width:140px;height:90px;background:#f1f5f9;border-radius:10px;border:1px solid var(--border);display:grid;place-items:center;font-size:11px;color:var(--muted)">Hero Visual</div></div>
+        </div>
+        <button class="btn btn-primary" style="margin-top:16px;width:100%;justify-content:center;padding:12px" onclick="saveBrand()">💾 Save Brand & Theme</button>
       </div>
+    </div>
 
-      <div class="card" style="margin-top:16px">
-        <h3>Hero Section</h3>
-        <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+    <!-- HERO -->
+    <div id="tab-hero" class="hidden">
+      <div class="card section-card">
+        <div class="sec-head"><div><div class="sec-title">🔥 Hero Section</div><div class="sec-sub">First thing visitors see — headline, CTA, badge and hero visual</div></div><button class="btn btn-primary" onclick="saveHero()">Save Hero</button></div>
+        <div style="display:flex;flex-direction:column;gap:10px">
           <label style="font-size:12px;font-weight:600">Badge</label><input class="input" id="c_hero_badge">
           <label style="font-size:12px;font-weight:600">Headline</label><textarea id="c_hero_headline" rows="2" class="input"></textarea>
           <label style="font-size:12px;font-weight:600">Subheadline</label><textarea id="c_hero_subheadline" rows="2" class="input"></textarea>
-          <label style="font-size:12px;font-weight:600">Hero Image URL (or use Website Images → hero)</label><input class="input" id="c_hero_image">
+          <label style="font-size:12px;font-weight:600">Hero Image</label>
+          <div class="url-row"><input type="file" id="heroFile" accept="image/*" class="input"><button class="btn btn-secondary" onclick="uploadHeroFile()">Upload</button></div>
+          <div class="url-row" style="margin-top:8px"><input id="c_hero_image" placeholder="Or paste image URL https://..." class="input"><button class="btn btn-secondary" onclick="saveHero()">Apply URL</button></div>
+          <div id="heroPreview" style="margin-top:8px"></div>
+          <div class="progress" id="heroProgress"><div class="progress-bar" id="heroProgressBar"></div></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <div style="flex:1;min-width:160px"><label style="font-size:12px;font-weight:600">Primary CTA Text</label><input class="input" id="c_hero_cta_primary"></div>
+            <div style="flex:1;min-width:160px"><label style="font-size:12px;font-weight:600">Secondary CTA Text</label><input class="input" id="c_hero_cta_secondary"></div>
+          </div>
         </div>
       </div>
+    </div>
 
-      <div class="card" style="margin-top:16px">
-        <h3>Stats Strip (4 stats)</h3>
+    <!-- STATS -->
+    <div id="tab-stats" class="hidden">
+      <div class="card section-card">
+        <div class="sec-head"><div><div class="sec-title">📈 Stats Strip</div><div class="sec-sub">4 stats under hero — proof numbers</div></div><button class="btn btn-primary" onclick="saveStats()">Save Stats</button></div>
         <div class="grid2" style="margin-top:12px">
           <div><label style="font-size:12px;font-weight:600">Stat 1 Value</label><input class="input" id="c_proof_stat_1_value"><label style="font-size:12px;font-weight:600">Label</label><input class="input" id="c_proof_stat_1_label"></div>
           <div><label style="font-size:12px;font-weight:600">Stat 2 Value</label><input class="input" id="c_proof_stat_2_value"><label style="font-size:12px;font-weight:600">Label</label><input class="input" id="c_proof_stat_2_label"></div>
@@ -153,142 +210,117 @@ td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
           <div><label style="font-size:12px;font-weight:600">Stat 4 Value</label><input class="input" id="c_proof_stat_4_value"><label style="font-size:12px;font-weight:600">Label</label><input class="input" id="c_proof_stat_4_label"></div>
         </div>
       </div>
-
-      <div class="card" style="margin-top:16px">
-        <h3>How It Works</h3>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
-          <label style="font-size:12px;font-weight:600">Section Title</label><input class="input" id="c_hiw_title">
-          <label style="font-size:12px;font-weight:600">Subtitle</label><input class="input" id="c_hiw_subtitle">
-          <div class="grid2">
-            <div><label style="font-size:12px;font-weight:600">Step 1 Title</label><input class="input" id="c_hiw_step1_title"><label style="font-size:12px;font-weight:600">Desc</label><textarea id="c_hiw_step1_desc" rows="2" class="input"></textarea></div>
-            <div><label style="font-size:12px;font-weight:600">Step 2 Title</label><input class="input" id="c_hiw_step2_title"><label style="font-size:12px;font-weight:600">Desc</label><textarea id="c_hiw_step2_desc" rows="2" class="input"></textarea></div>
-            <div><label style="font-size:12px;font-weight:600">Step 3 Title</label><input class="input" id="c_hiw_step3_title"><label style="font-size:12px;font-weight:600">Desc</label><textarea id="c_hiw_step3_desc" rows="2" class="input"></textarea></div>
-            <div><label style="font-size:12px;font-weight:600">Step 4 Title</label><input class="input" id="c_hiw_step4_title"><label style="font-size:12px;font-weight:600">Desc</label><textarea id="c_hiw_step4_desc" rows="2" class="input"></textarea></div>
-          </div>
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:16px">
-        <h3>Client Reviews & Expert & Other Sections</h3>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
-          <label style="font-size:12px;font-weight:600">Pricing Title</label><input class="input" id="c_pricing_title">
-          <label style="font-size:12px;font-weight:600">Pricing Subtitle</label><input class="input" id="c_pricing_subtitle">
-          <label style="font-size:12px;font-weight:600">Reviews Title (Client Reviews)</label><input class="input" id="c_testimonials_title">
-          <label style="font-size:12px;font-weight:600">Reviews Subtitle</label><input class="input" id="c_testimonials_subtitle">
-          <label style="font-size:12px;font-weight:600">Expert Title</label><input class="input" id="c_expert_title">
-          <label style="font-size:12px;font-weight:600">Expert Subtitle</label><input class="input" id="c_expert_subtitle">
-          <label style="font-size:12px;font-weight:600">FAQ Title</label><input class="input" id="c_faq_title">
-          <label style="font-size:12px;font-weight:600">FAQ Subtitle</label><input class="input" id="c_faq_subtitle">
-          <label style="font-size:12px;font-weight:600">CTA Title</label><input class="input" id="c_cta_title">
-          <label style="font-size:12px;font-weight:600">CTA Subtitle</label><input class="input" id="c_cta_subtitle">
-        </div>
-      </div>
-
-      <div class="card" style="margin-top:16px">
-        <h3>Urgency Banner & Footer</h3>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
-          <label style="font-size:12px;font-weight:600"><input type="checkbox" id="c_banner_enabled"> Enable urgency banner</label>
-          <input class="input" id="c_banner_text" placeholder="Banner text">
-          <label style="font-size:12px;font-weight:600">Footer Text</label><input class="input" id="c_footer_text">
-          <label style="font-size:12px;font-weight:600">Footer Email</label><input class="input" id="c_footer_email">
-          <label style="font-size:12px;font-weight:600">Footer Address</label><input class="input" id="c_footer_address">
-        </div>
-      </div>
-
-      <button class="btn btn-primary" style="margin-top:16px;width:100%;justify-content:center;padding:14px" onclick="saveContent()">💾 Save All Content</button>
     </div>
 
-    <!-- WEBSITE IMAGES -->
-    <div id="tab-website" class="hidden">
-      <div class="card">
-        <h3>Website Image Manager</h3>
-        <p style="font-size:13px;color:var(--muted);margin-top:4px">Upload, update, or remove any image displayed on the website — hero mockup, inline graphics, banners. These are used across the site (hero, sections).</p>
-        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
-          <input type="file" id="websiteFile" accept="image/*,video/*" class="input" style="flex:1;min-width:180px">
-          <input id="websiteCaption" placeholder="Caption / usage note (e.g. Hero mockup)" class="input" style="flex:1;min-width:180px">
-          <button class="btn btn-primary" onclick="uploadWebsite()">Upload</button>
-        </div>
-        <div style="margin-top:8px;font-size:11px;color:var(--muted)">Tip: To set as hero image, copy the URL after upload and paste it in Content Editor → Hero Image URL, or click “Use as Hero”.</div>
+    <!-- PORTFOLIO -->
+    <div id="tab-portfolio" class="hidden">
+      <div class="card section-card">
+        <div class="sec-head"><div><div class="sec-title">🗂️ Portfolio — Stores We've Built</div><div class="sec-sub">Gallery of store designs — instant upload with progress</div></div></div>
+        <div class="dropzone" id="portfolioDrop" onclick="document.getElementById('mediaFilePortfolio').click()" ondragover="onDrag(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'portfolio')">📤 Click or drag image here to upload instantly — or paste URL below</div>
+        <div class="url-row" style="margin-top:10px"><input type="file" id="mediaFilePortfolio" accept="image/*" class="input" onchange="handleFileSelect(this,'portfolio')"><input id="mediaCaptionPortfolio" placeholder="Caption" class="input"><button class="btn btn-primary" onclick="uploadMediaInstant('portfolio')">Upload</button></div>
+        <div class="url-row" style="margin-top:8px"><input id="mediaUrlPortfolio" placeholder="Or paste image URL https://..." class="input"><button class="btn btn-secondary" onclick="uploadMediaUrl('portfolio')">Add via URL</button></div>
+        <div class="progress" id="portfolioProgress"><div class="progress-bar" id="portfolioProgressBar"></div></div>
+        <div id="portfolioPreview" style="margin-top:8px"></div>
       </div>
-      <div class="gallery-admin" id="websiteGrid" style="margin-top:16px"></div>
+      <div class="gallery-admin" id="portfolioGrid" style="margin-top:16px"></div>
     </div>
 
-    <!-- MEDIA: PORTFOLIO / PROOF -->
-    <div id="tab-media" class="hidden">
-      <div class="tabs"><button class="tab active" id="mediaTabPortfolio" onclick="switchMedia('portfolio')">Portfolio</button><button class="tab" id="mediaTabSales" onclick="switchMedia('sales')">Sales Proof</button></div>
-      <div class="card">
-        <h4>Upload Image</h4>
-        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-          <input type="file" id="mediaFile" accept="image/*" class="input" style="flex:1;min-width:180px">
-          <input id="mediaCaption" placeholder="Caption" class="input" style="flex:1;min-width:180px">
-          <button class="btn btn-primary" onclick="uploadMedia()">Upload</button>
-        </div>
+    <!-- SALES -->
+    <div id="tab-sales" class="hidden">
+      <div class="card section-card" style="border-left-color:#0E9F6E">
+        <div class="sec-head"><div><div class="sec-title">💰 Sales Proof — Verified Results</div><div class="sec-sub">Shopify screenshots, payouts — instant upload</div></div></div>
+        <div class="dropzone" onclick="document.getElementById('mediaFileSales').click()" ondragover="onDrag(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'sales')">📤 Click or drag image here</div>
+        <div class="url-row" style="margin-top:10px"><input type="file" id="mediaFileSales" accept="image/*" class="input" onchange="handleFileSelect(this,'sales')"><input id="mediaCaptionSales" placeholder="Caption" class="input"><button class="btn btn-primary" onclick="uploadMediaInstant('sales')">Upload</button></div>
+        <div class="url-row" style="margin-top:8px"><input id="mediaUrlSales" placeholder="Or paste image URL" class="input"><button class="btn btn-secondary" onclick="uploadMediaUrl('sales')">Add via URL</button></div>
+        <div class="progress" id="salesProgress"><div class="progress-bar" id="salesProgressBar"></div></div>
+        <div id="salesPreview" style="margin-top:8px"></div>
       </div>
-      <div class="gallery-admin" id="mediaGrid" style="margin-top:16px"></div>
+      <div class="gallery-admin" id="salesGrid" style="margin-top:16px"></div>
     </div>
 
-    <!-- REVIEWS: 4 pics + 4 videos -->
+    <!-- HOW IT WORKS -->
+    <div id="tab-hiw" class="hidden">
+      <div class="card section-card" style="border-left-color:#6366f1">
+        <div class="sec-head"><div><div class="sec-title">⚙️ How It Works — Process</div><div class="sec-sub">4 steps from idea to income</div></div><button class="btn btn-primary" onclick="saveHiw()">Save Process</button></div>
+        <label style="font-size:12px;font-weight:600">Section Title</label><input class="input" id="c_hiw_title">
+        <label style="font-size:12px;font-weight:600">Subtitle</label><input class="input" id="c_hiw_subtitle" style="margin-top:8px">
+        <div class="grid2" style="margin-top:12px">
+          <div><label style="font-size:12px;font-weight:600">Step 1 Title</label><input class="input" id="c_hiw_step1_title"><label style="font-size:12px;font-weight:600">Desc</label><textarea id="c_hiw_step1_desc" rows="2" class="input"></textarea></div>
+          <div><label style="font-size:12px;font-weight:600">Step 2 Title</label><input class="input" id="c_hiw_step2_title"><label style="font-size:12px;font-weight:600">Desc</label><textarea id="c_hiw_step2_desc" rows="2" class="input"></textarea></div>
+          <div><label style="font-size:12px;font-weight:600">Step 3 Title</label><input class="input" id="c_hiw_step3_title"><label style="font-size:12px;font-weight:600">Desc</label><textarea id="c_hiw_step3_desc" rows="2" class="input"></textarea></div>
+          <div><label style="font-size:12px;font-weight:600">Step 4 Title</label><input class="input" id="c_hiw_step4_title"><label style="font-size:12px;font-weight:600">Desc</label><textarea id="c_hiw_step4_desc" rows="2" class="input"></textarea></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRICING -->
+    <div id="tab-pricing" class="hidden">
+      <div class="card section-card" style="border-left-color:#f59e0b">
+        <div class="sec-head"><div><div class="sec-title">💳 Pricing</div><div class="sec-sub">3 plans — Starter / Growth / Empire (editable)</div></div><button class="btn btn-primary" onclick="savePricing()">Save Pricing</button></div>
+        <label style="font-size:12px;font-weight:600">Pricing Title</label><input class="input" id="c_pricing_title">
+        <label style="font-size:12px;font-weight:600">Subtitle</label><input class="input" id="c_pricing_subtitle" style="margin-top:8px">
+        <label style="font-size:12px;display:flex;gap:6px;align-items:center;margin-top:10px"><input type="checkbox" id="c_pricing_show"> Show pricing section on frontend</label>
+        <p style="font-size:11px;color:var(--muted);margin-top:8px">Note: Card details (Starter/Growth/Empire) are in <code>public/index.html</code> pricing-grid — edit file for full card customization or ask to make them fully CMS-driven.</p>
+      </div>
+    </div>
+
+    <!-- REVIEWS -->
     <div id="tab-reviews" class="hidden">
       <div class="card" style="border-left:4px solid var(--accent)">
         <h3>⭐ Client Reviews — Exactly 4 Pictures + 4 Videos</h3>
-        <p style="font-size:13px;color:var(--muted);margin-top:4px">Frontend displays 4 picture reviews at top and 4 video reviews below. Limit enforced: delete one to add another.</p>
+        <p style="font-size:13px;color:var(--muted);margin-top:4px">Frontend displays 4 picture reviews + 4 video reviews. Instant upload with progress, file or URL.</p>
+        <label style="font-size:12px;font-weight:600;margin-top:10px;display:block">Reviews Section Title</label><input class="input" id="c_testimonials_title">
+        <label style="font-size:12px;font-weight:600">Subtitle</label><input class="input" id="c_testimonials_subtitle">
+        <button class="btn btn-secondary" style="margin-top:8px" onclick="saveReviewsMeta()">Save Title</button>
       </div>
       <div class="card" style="margin-top:16px">
-        <h4>📸 Picture Reviews (max 4)</h4>
-        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-          <input type="file" id="reviewPicFile" accept="image/*" class="input" style="flex:1;min-width:180px">
-          <input id="reviewPicCaption" placeholder="Caption" class="input" style="flex:1;min-width:180px">
-          <button class="btn btn-primary" onclick="uploadReviewPic()">Upload Picture</button>
-        </div>
+        <h4>📸 Picture Reviews (max 4) — instant</h4>
+        <div class="dropzone" onclick="document.getElementById('reviewPicFile').click()" ondragover="onDrag(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'review_pic')">Click or drag picture here</div>
+        <div class="url-row" style="margin-top:10px"><input type="file" id="reviewPicFile" accept="image/*" class="input" onchange="handleFileSelect(this,'review_pic')"><input id="reviewPicCaption" placeholder="Caption" class="input"><button class="btn btn-primary" onclick="uploadReviewPicInstant()">Upload</button></div>
+        <div class="url-row" style="margin-top:8px"><input id="reviewPicUrl" placeholder="Or paste image URL" class="input"><button class="btn btn-secondary" onclick="uploadReviewPicUrl()">Add via URL</button></div>
+        <div class="progress" id="reviewPicProgress"><div class="progress-bar" id="reviewPicProgressBar"></div></div>
+        <div id="reviewPicPreview" style="margin-top:8px"></div>
         <div id="reviewPicCount" style="font-size:12px;color:var(--muted);margin-top:6px"></div>
         <div class="slot-grid" id="reviewPicGrid" style="margin-top:12px"></div>
       </div>
       <div class="card" style="margin-top:16px">
-        <h4>🎥 Video Reviews (max 4) — upload video file OR paste YouTube/embed link</h4>
-        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
-          <input type="file" id="reviewVideoFile" accept="video/*" class="input" style="flex:1;min-width:160px">
-          <input id="reviewVideoUrl" placeholder="OR paste YouTube link (https://youtu.be/...)" class="input" style="flex:1;min-width:180px">
-          <input id="reviewVideoCaption" placeholder="Caption" class="input" style="flex:1;min-width:140px">
-          <button class="btn btn-primary" onclick="uploadReviewVideo()">Add Video</button>
-        </div>
+        <h4>🎥 Video Reviews (max 4) — file or YouTube URL</h4>
+        <div class="dropzone" onclick="document.getElementById('reviewVideoFile').click()" ondragover="onDrag(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'review_video')">Click or drag video / paste YouTube link below</div>
+        <div class="url-row" style="margin-top:10px"><input type="file" id="reviewVideoFile" accept="video/*" class="input" onchange="handleFileSelect(this,'review_video')"><input id="reviewVideoUrl" placeholder="Or paste YouTube link https://youtu.be/..." class="input"><input id="reviewVideoCaption" placeholder="Caption" class="input"><button class="btn btn-primary" onclick="uploadReviewVideoInstant()">Add Video</button></div>
+        <div class="progress" id="reviewVideoProgress"><div class="progress-bar" id="reviewVideoProgressBar"></div></div>
+        <div id="reviewVideoPreview" style="margin-top:8px"></div>
         <div id="reviewVideoCount" style="font-size:12px;color:var(--muted);margin-top:6px"></div>
         <div class="slot-grid" id="reviewVideoGrid" style="margin-top:12px"></div>
       </div>
     </div>
 
-    <!-- EXPERT 2x2 -->
+    <!-- EXPERT -->
     <div id="tab-expert" class="hidden">
       <div class="card" style="border-left:4px solid var(--primary)">
-        <h3>👨‍💼 Meet the Expert — Exactly 4 Pictures (2×2 grid)</h3>
-        <p style="font-size:13px;color:var(--muted);margin-top:4px">Frontend shows a 2-column, 2-row grid. Max 4 — delete one to replace.</p>
-        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
-          <input type="file" id="expertFile" accept="image/*" class="input" style="flex:1;min-width:180px">
-          <input id="expertCaption" placeholder="Caption / name (e.g. John — Founder)" class="input" style="flex:1;min-width:180px">
-          <button class="btn btn-primary" onclick="uploadExpert()">Upload Expert Pic</button>
-        </div>
+        <h3>👨‍💼 Meet the Expert — Exactly 4 Pictures (2×2 grid) — instant</h3>
+        <p style="font-size:13px;color:var(--muted);margin-top:4px">Frontend shows 2×2 grid. Max 4 — delete to replace. File or URL.</p>
+        <label style="font-size:12px;font-weight:600;margin-top:10px;display:block">Expert Title</label><input class="input" id="c_expert_title">
+        <label style="font-size:12px;font-weight:600">Subtitle</label><input class="input" id="c_expert_subtitle">
+        <button class="btn btn-secondary" style="margin-top:8px" onclick="saveExpertMeta()">Save Title</button>
+        <div class="dropzone" style="margin-top:12px" onclick="document.getElementById('expertFile').click()" ondragover="onDrag(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'expert')">Click or drag expert image here</div>
+        <div class="url-row" style="margin-top:10px"><input type="file" id="expertFile" accept="image/*" class="input" onchange="handleFileSelect(this,'expert')"><input id="expertCaption" placeholder="Caption / name" class="input"><button class="btn btn-primary" onclick="uploadExpertInstant()">Upload</button></div>
+        <div class="url-row" style="margin-top:8px"><input id="expertUrl" placeholder="Or paste image URL" class="input"><button class="btn btn-secondary" onclick="uploadExpertUrl()">Add via URL</button></div>
+        <div class="progress" id="expertProgress"><div class="progress-bar" id="expertProgressBar"></div></div>
+        <div id="expertPreview" style="margin-top:8px"></div>
         <div id="expertCount" style="font-size:12px;color:var(--muted);margin-top:6px"></div>
       </div>
       <div class="slot-grid" id="expertGridAdmin" style="margin-top:16px"></div>
     </div>
 
-    <!-- TESTIMONIALS (legacy text) -->
-    <div id="tab-testimonials" class="hidden">
-      <div class="card">
-        <h4>Add Text Testimonial (legacy)</h4>
-        <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
-          <input id="t_name" placeholder="Name" class="input">
-          <input id="t_role" placeholder="Role (e.g. Fashion Store Owner)" class="input">
-          <textarea id="t_quote" placeholder="Quote" rows="2" class="input"></textarea>
-          <input id="t_photo" placeholder="Photo URL (optional)" class="input">
-          <button class="btn btn-primary" onclick="addTestimonial()">Add</button>
-        </div>
+    <!-- FAQ -->
+    <div id="tab-faq" class="hidden">
+      <div class="card section-card">
+        <div class="sec-head"><div><div class="sec-title">❓ FAQ Section</div><div class="sec-sub">Questions & answers — editable instantly</div></div></div>
+        <label style="font-size:12px;font-weight:600">FAQ Title</label><input class="input" id="c_faq_title">
+        <label style="font-size:12px;font-weight:600">Subtitle</label><input class="input" id="c_faq_subtitle" style="margin-top:8px">
+        <button class="btn btn-secondary" style="margin-top:8px" onclick="saveFaqMeta()">Save Title</button>
       </div>
-      <div id="testiList" style="margin-top:16px;display:flex;flex-direction:column;gap:10px"></div>
-    </div>
-
-    <!-- FAQS -->
-    <div id="tab-faqs" class="hidden">
-      <div class="card">
+      <div class="card" style="margin-top:16px">
         <h4>Add FAQ</h4>
         <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
           <input id="faq_q" placeholder="Question" class="input">
@@ -297,6 +329,56 @@ td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
         </div>
       </div>
       <div id="faqListAdmin" style="margin-top:16px;display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+
+    <!-- CTA -->
+    <div id="tab-cta" class="hidden">
+      <div class="card section-card" style="border-left-color:#10b981">
+        <div class="sec-head"><div><div class="sec-title">🎯 CTA & Lead Form</div><div class="sec-sub">Bottom CTA + form side panel</div></div><button class="btn btn-primary" onclick="saveCta()">Save CTA</button></div>
+        <label style="font-size:12px;font-weight:600">CTA Title (Ready to Launch?)</label><input class="input" id="c_cta_title">
+        <label style="font-size:12px;font-weight:600">CTA Subtitle</label><textarea id="c_cta_subtitle" rows="2" class="input" style="margin-top:8px"></textarea>
+      </div>
+    </div>
+
+    <!-- BANNER & FOOTER -->
+    <div id="tab-banner" class="hidden">
+      <div class="card section-card" style="border-left-color:#ef4444">
+        <div class="sec-head"><div><div class="sec-title">🚨 Urgency Banner & Footer</div><div class="sec-sub">Top banner + footer text, email, address</div></div><button class="btn btn-primary" onclick="saveBannerFooter()">Save</button></div>
+        <label style="font-size:12px;font-weight:600"><input type="checkbox" id="c_banner_enabled"> Enable urgency banner</label>
+        <input class="input" id="c_banner_text" placeholder="Banner text" style="margin-top:8px">
+        <label style="font-size:12px;font-weight:600;margin-top:12px;display:block">Footer Text</label><input class="input" id="c_footer_text">
+        <label style="font-size:12px;font-weight:600">Footer Email</label><input class="input" id="c_footer_email">
+        <label style="font-size:12px;font-weight:600">Footer Address</label><input class="input" id="c_footer_address">
+      </div>
+    </div>
+
+    <!-- WEBSITE IMAGES -->
+    <div id="tab-website" class="hidden">
+      <div class="card section-card">
+        <div class="sec-head"><div><div class="sec-title">🖼️ Website Images — General</div><div class="sec-sub">Hero mockup, inline graphics, banners — file or URL, instant</div></div></div>
+        <div class="dropzone" onclick="document.getElementById('websiteFile').click()" ondragover="onDrag(event)" ondragleave="onDragLeave(event)" ondrop="onDrop(event,'website')">Click or drag image/video here</div>
+        <div class="url-row" style="margin-top:10px"><input type="file" id="websiteFile" accept="image/*,video/*" class="input" onchange="handleFileSelect(this,'website')"><input id="websiteCaption" placeholder="Caption / usage note" class="input"><button class="btn btn-primary" onclick="uploadWebsiteInstant()">Upload</button></div>
+        <div class="url-row" style="margin-top:8px"><input id="websiteUrl" placeholder="Or paste image/video URL https://..." class="input"><button class="btn btn-secondary" onclick="uploadWebsiteUrl()">Add via URL</button></div>
+        <div class="progress" id="websiteProgress"><div class="progress-bar" id="websiteProgressBar"></div></div>
+        <div id="websitePreview" style="margin-top:8px"></div>
+      </div>
+      <div class="gallery-admin" id="websiteGrid" style="margin-top:16px"></div>
+    </div>
+
+    <!-- TESTIMONIALS -->
+    <div id="tab-testimonials" class="hidden">
+      <div class="card">
+        <h4>Add Text Testimonial</h4>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
+          <input id="t_name" placeholder="Name" class="input">
+          <input id="t_role" placeholder="Role (e.g. Fashion Store Owner)" class="input">
+          <textarea id="t_quote" placeholder="Quote" rows="2" class="input"></textarea>
+          <input id="t_photo" placeholder="Photo URL (or leave empty)" class="input">
+          <div class="url-row"><input type="file" id="t_photoFile" accept="image/*" class="input"><span style="font-size:12px;color:var(--muted);align-self:center">Or upload photo</span></div>
+          <button class="btn btn-primary" onclick="addTestimonial()">Add</button>
+        </div>
+      </div>
+      <div id="testiList" style="margin-top:16px;display:flex;flex-direction:column;gap:10px"></div>
     </div>
 
     <!-- LEADS -->
@@ -319,6 +401,11 @@ td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
           <button class="btn btn-primary" onclick="changePass()">Update Password</button>
         </div>
       </div>
+      <div class="card" style="margin-top:16px">
+        <h3>Global Save</h3>
+        <p style="font-size:13px;color:var(--muted);margin-top:4px">Save all text content at once (alternative to per-section saves)</p>
+        <button class="btn btn-primary" style="margin-top:12px;width:100%;justify-content:center;padding:14px" onclick="saveContent()">💾 Save All Content</button>
+      </div>
     </div>
 
   </div>
@@ -332,7 +419,17 @@ let currentMediaType='portfolio';
 let allLeads=[];
 let contentData={};
 
+const PRESETS=[
+  {name:'WayWealth Default',primary:'#0B1D3A',accent:'#0E9F6E',bg:'#FFFFFF',button:'#0E9F6E',text:'#1a2744'},
+  {name:'Royal Luxe',primary:'#1a1033',accent:'#d4af37',bg:'#fdfbf7',button:'#d4af37',text:'#1a1033'},
+  {name:'Midnight Cyan',primary:'#0f172a',accent:'#06b6d4',bg:'#f8fafc',button:'#06b6d4',text:'#0f172a'},
+  {name:'Forest Amber',primary:'#14532d',accent:'#f59e0b',bg:'#fffbeb',button:'#14532d',text:'#1a2744'},
+  {name:'Crimson Slate',primary:'#1e293b',accent:'#ef4444',bg:'#ffffff',button:'#ef4444',text:'#1e293b'},
+  {name:'Ocean Orange',primary:'#0c4a6e',accent:'#f97316',bg:'#fff7ed',button:'#f97316',text:'#0c4a6e'},
+];
+
 function authHeaders(){ return {'Content-Type':'application/json','Authorization':'Bearer '+token}; }
+function esc(s){ const d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
 
 async function login(){
   const u=document.getElementById('loginUser').value, p=document.getElementById('loginPass').value;
@@ -352,7 +449,9 @@ async function init(){
   if(!r.ok){ logout(); return; }
   document.getElementById('loginView').classList.add('hidden');
   document.getElementById('appView').classList.remove('hidden');
-  loadContent(); loadAnalytics(); loadMedia(); loadWebsite(); loadReviews(); loadExpert(); loadTestimonials(); loadFaqs(); loadLeads();
+  buildPresets();
+  await loadContent();
+  loadAnalytics(); loadMedia('portfolio'); loadMedia('sales'); loadWebsite(); loadReviews(); loadExpert(); loadTestimonials(); loadFaqs(); loadLeads();
 }
 function switchTab(tab){
   document.querySelectorAll('.sidebar a[data-tab]').forEach(a=>a.classList.toggle('active',a.dataset.tab===tab));
@@ -363,18 +462,51 @@ function switchTab(tab){
   if(tab==='analytics') loadAnalytics();
   if(tab==='leads') loadLeads();
   if(tab==='website') loadWebsite();
+  if(tab==='portfolio') loadMedia('portfolio');
+  if(tab==='sales') loadMedia('sales');
   if(tab==='reviews') loadReviews();
   if(tab==='expert') loadExpert();
-}
-function switchMedia(type){
-  currentMediaType = type==='sales'?'sales':'portfolio';
-  document.getElementById('mediaTabPortfolio').classList.toggle('active',currentMediaType==='portfolio');
-  document.getElementById('mediaTabSales').classList.toggle('active',currentMediaType==='sales');
-  loadMedia();
+  if(tab==='brand') updateLivePreview();
 }
 function toast(msg,err){ const t=document.getElementById('toast'); t.textContent=msg; t.style.background=err?'#ef4444':'var(--primary)'; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
 
-// Content
+// --- Presets & Live Preview ---
+function buildPresets(){
+  const grid=document.getElementById('presetGrid');
+  grid.innerHTML=PRESETS.map((p,i)=>`
+    <div class="preset" onclick="applyPreset(${i})" id="preset-${i}">
+      <div style="font-weight:700;font-size:13px">${p.name}</div>
+      <div class="preset-dots"><span class="preset-dot" style="background:${p.primary}"></span><span class="preset-dot" style="background:${p.accent}"></span><span class="preset-dot" style="background:${p.bg};border-color:#e2e8f0"></span><span class="preset-dot" style="background:${p.button}"></span></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:6px">${p.primary} • ${p.accent}</div>
+    </div>
+  `).join('');
+}
+function applyPreset(i){
+  const p=PRESETS[i];
+  document.getElementById('c_color_primary').value=p.primary;
+  document.getElementById('c_color_accent').value=p.accent;
+  document.getElementById('c_color_background').value=p.bg;
+  document.getElementById('c_color_button').value=p.button;
+  document.getElementById('c_color_text').value=p.text;
+  document.querySelectorAll('.preset').forEach(e=>e.classList.remove('active'));
+  document.getElementById('preset-'+i).classList.add('active');
+  updateLivePreview();
+  toast('Preset applied — click Save Brand & Theme');
+}
+function updateLivePreview(){
+  const primary=document.getElementById('c_color_primary')?.value||'#0B1D3A';
+  const accent=document.getElementById('c_color_accent')?.value||'#0E9F6E';
+  const bg=document.getElementById('c_color_background')?.value||'#FFFFFF';
+  const btn=document.getElementById('c_color_button')?.value||accent;
+  const lp=document.getElementById('brandLivePreview');
+  if(!lp) return;
+  lp.style.background=bg;
+  lp.querySelector('.lp-nav').style.background=primary;
+  lp.querySelector('.lp-nav').style.color='#fff';
+  lp.querySelectorAll('.btn-primary').forEach(b=>b.style.background=btn);
+}
+
+// --- Content ---
 async function loadContent(){
   const r=await fetch('/api/content'); contentData=await r.json();
   Object.keys(contentData).forEach(k=>{
@@ -385,13 +517,36 @@ async function loadContent(){
       else el.value = contentData[k];
     }
   });
+  // pricing show checkbox
+  const ps=document.getElementById('c_pricing_show');
+  if(ps) ps.checked = (contentData.pricing_show||'true')==='true';
+  // hero preview
+  if(contentData.hero_image) document.getElementById('heroPreview').innerHTML=`<img src="${contentData.hero_image}" style="max-height:180px;border-radius:12px;border:1px solid var(--border)">`;
   if(contentData.logo_url) document.getElementById('logoPreview').innerHTML=`<img src="${contentData.logo_url}" style="height:40px;border:1px solid var(--border);border-radius:8px">`;
   if(contentData.favicon_url) document.getElementById('faviconPreview').innerHTML=`<img src="${contentData.favicon_url}" style="height:32px">`;
+  // listeners for live preview
+  ['c_color_primary','c_color_accent','c_color_background','c_color_button','c_color_text'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el) el.addEventListener('input', updateLivePreview);
+  });
+  updateLivePreview();
+}
+async function saveFields(keys){
+  const payload={};
+  keys.forEach(k=>{
+    const el=document.getElementById('c_'+k);
+    if(!el) return;
+    if(el.type==='checkbox') payload[k]= el.checked ? 'true':'false';
+    else payload[k]= el.value;
+  });
+  const r=await fetch('/api/content',{method:'PUT',headers:authHeaders(),body:JSON.stringify(payload)});
+  if(r.ok) toast('Saved!');
+  else toast('Save failed',true);
 }
 async function saveContent(){
   const fields=[
-    'site_name','font_family','color_primary','color_accent','color_background','color_button','whatsapp_number','whatsapp_message','booking_link',
-    'hero_badge','hero_headline','hero_subheadline','hero_image',
+    'site_name','font_family','color_primary','color_accent','color_background','color_button','color_text','whatsapp_number','whatsapp_message','booking_link',
+    'hero_badge','hero_headline','hero_subheadline','hero_image','hero_cta_primary','hero_cta_secondary',
     'proof_stat_1_value','proof_stat_1_label','proof_stat_2_value','proof_stat_2_label','proof_stat_3_value','proof_stat_3_label','proof_stat_4_value','proof_stat_4_label',
     'hiw_title','hiw_subtitle','hiw_step1_title','hiw_step1_desc','hiw_step2_title','hiw_step2_desc','hiw_step3_title','hiw_step3_desc','hiw_step4_title','hiw_step4_desc',
     'pricing_title','pricing_subtitle','testimonials_title','testimonials_subtitle','expert_title','expert_subtitle','faq_title','faq_subtitle','cta_title','cta_subtitle',
@@ -403,81 +558,203 @@ async function saveContent(){
     if(el) payload[k]=el.value;
   });
   payload['banner_enabled']= document.getElementById('c_banner_enabled').checked ? 'true':'false';
+  payload['pricing_show']= document.getElementById('c_pricing_show').checked ? 'true':'false';
   const r=await fetch('/api/content',{method:'PUT',headers:authHeaders(),body:JSON.stringify(payload)});
-  if(r.ok) toast('Content saved!');
+  if(r.ok) toast('All content saved!');
   else toast('Save failed',true);
 }
+async function saveBrand(){ await saveFields(['site_name','font_family','color_primary','color_accent','color_background','color_button','color_text','whatsapp_number','whatsapp_message','booking_link']); }
+async function saveHero(){ await saveFields(['hero_badge','hero_headline','hero_subheadline','hero_image','hero_cta_primary','hero_cta_secondary']); if(contentData.hero_image!==document.getElementById('c_hero_image').value) document.getElementById('heroPreview').innerHTML=`<img src="${document.getElementById('c_hero_image').value}" style="max-height:180px;border-radius:12px">`; }
+async function saveStats(){ await saveFields(['proof_stat_1_value','proof_stat_1_label','proof_stat_2_value','proof_stat_2_label','proof_stat_3_value','proof_stat_3_label','proof_stat_4_value','proof_stat_4_label']); }
+async function saveHiw(){ await saveFields(['hiw_title','hiw_subtitle','hiw_step1_title','hiw_step1_desc','hiw_step2_title','hiw_step2_desc','hiw_step3_title','hiw_step3_desc','hiw_step4_title','hiw_step4_desc']); }
+async function savePricing(){ await saveFields(['pricing_title','pricing_subtitle','pricing_show']); }
+async function saveReviewsMeta(){ await saveFields(['testimonials_title','testimonials_subtitle']); }
+async function saveExpertMeta(){ await saveFields(['expert_title','expert_subtitle']); }
+async function saveFaqMeta(){ await saveFields(['faq_title','faq_subtitle']); }
+async function saveCta(){ await saveFields(['cta_title','cta_subtitle']); }
+async function saveBannerFooter(){ await saveFields(['banner_enabled','banner_text','footer_text','footer_email','footer_address']); }
+
+// --- Upload helpers with instant preview + progress ---
+function onDrag(e){ e.preventDefault(); e.currentTarget.classList.add('dragover'); }
+function onDragLeave(e){ e.currentTarget.classList.remove('dragover'); }
+function onDrop(e,type){
+  e.preventDefault(); e.currentTarget.classList.remove('dragover');
+  const file=e.dataTransfer.files[0];
+  if(!file) return;
+  // route to correct input
+  if(type==='portfolio') { document.getElementById('mediaFilePortfolio').files=e.dataTransfer.files; handleFileSelect(document.getElementById('mediaFilePortfolio'),'portfolio'); }
+  if(type==='sales') { document.getElementById('mediaFileSales').files=e.dataTransfer.files; handleFileSelect(document.getElementById('mediaFileSales'),'sales'); }
+  if(type==='review_pic') { document.getElementById('reviewPicFile').files=e.dataTransfer.files; handleFileSelect(document.getElementById('reviewPicFile'),'review_pic'); }
+  if(type==='review_video') { document.getElementById('reviewVideoFile').files=e.dataTransfer.files; handleFileSelect(document.getElementById('reviewVideoFile'),'review_video'); }
+  if(type==='expert') { document.getElementById('expertFile').files=e.dataTransfer.files; handleFileSelect(document.getElementById('expertFile'),'expert'); }
+  if(type==='website') { document.getElementById('websiteFile').files=e.dataTransfer.files; handleFileSelect(document.getElementById('websiteFile'),'website'); }
+}
+function handleFileSelect(input,type){
+  const file=input.files[0];
+  if(!file) return;
+  const previewMap={portfolio:'portfolioPreview',sales:'salesPreview',review_pic:'reviewPicPreview',review_video:'reviewVideoPreview',expert:'expertPreview',website:'websitePreview',hero:'heroPreview'};
+  const pid=previewMap[type];
+  if(!pid) return;
+  const url=URL.createObjectURL(file);
+  const isVideo=file.type.startsWith('video/');
+  document.getElementById(pid).innerHTML= isVideo ? `<video src="${url}" style="max-height:160px;border-radius:10px" muted autoplay loop></video><div style="font-size:12px;color:var(--muted)">Ready to upload: ${file.name} (${(file.size/1024/1024).toFixed(2)} MB)</div>` : `<img src="${url}" style="max-height:160px;border-radius:10px;border:1px solid var(--border)"><div style="font-size:12px;color:var(--muted)">Ready to upload: ${file.name}</div>`;
+}
+function uploadWithProgress(url, formData, progressId, barId){
+  return new Promise((resolve,reject)=>{
+    const xhr=new XMLHttpRequest();
+    xhr.open('POST', url, true);
+    xhr.setRequestHeader('Authorization','Bearer '+token);
+    const prog=document.getElementById(progressId);
+    const bar=document.getElementById(barId);
+    if(prog) prog.style.display='block';
+    xhr.upload.onprogress=(e)=>{
+      if(e.lengthComputable && bar){
+        const pct=Math.round(e.loaded/e.total*100);
+        bar.style.width=pct+'%';
+        bar.textContent=pct+'%';
+      }
+    };
+    xhr.onload=()=>{
+      if(bar) bar.style.width='100%';
+      setTimeout(()=>{ if(prog) prog.style.display='none'; if(bar) bar.style.width='0%'; },800);
+      if(xhr.status>=200 && xhr.status<300){
+        try{ resolve(JSON.parse(xhr.responseText)); }catch{ resolve({ok:true}); }
+      } else {
+        try{ reject(JSON.parse(xhr.responseText)); }catch{ reject({error:'Upload failed'}); }
+      }
+    };
+    xhr.onerror=()=>{ if(prog) prog.style.display='none'; reject({error:'Network error'}); };
+    xhr.send(formData);
+  });
+}
+async function uploadMediaInstant(type){
+  const map={portfolio:{file:'mediaFilePortfolio',cap:'mediaCaptionPortfolio',prog:'portfolioProgress',bar:'portfolioProgressBar',preview:'portfolioPreview'},sales:{file:'mediaFileSales',cap:'mediaCaptionSales',prog:'salesProgress',bar:'salesProgressBar',preview:'salesPreview'}};
+  const m=map[type];
+  const f=document.getElementById(m.file).files[0];
+  if(!f) return toast('Select file first',true);
+  const fd=new FormData(); fd.append('file',f); fd.append('type',type); fd.append('caption',document.getElementById(m.cap).value);
+  try{ const j=await uploadWithProgress('/api/media',fd,m.prog,m.bar); toast('Uploaded instantly'); document.getElementById(m.file).value=''; document.getElementById(m.cap).value=''; document.getElementById(m.preview).innerHTML=''; loadMedia(type); }catch(e){ toast(e.error||'Upload failed',true); }
+}
+async function uploadMediaUrl(type){
+  const id= type==='portfolio' ? 'mediaUrlPortfolio' : 'mediaUrlSales';
+  const capId= type==='portfolio' ? 'mediaCaptionPortfolio' : 'mediaCaptionSales';
+  const url=document.getElementById(id).value.trim();
+  if(!url) return toast('Paste URL first',true);
+  const fd=new FormData(); fd.append('type',type); fd.append('caption',document.getElementById(capId).value); fd.append('url',url);
+  try{ const j=await uploadWithProgress('/api/media',fd, type==='portfolio'?'portfolioProgress':'salesProgress', type==='portfolio'?'portfolioProgressBar':'salesProgressBar'); toast('Added via URL'); document.getElementById(id).value=''; loadMedia(type); }catch(e){ toast(e.error||'Failed',true); }
+}
 async function uploadLogo(){
-  const f=document.getElementById('logoFile').files[0]; if(!f) return toast('Select a file',true);
+  const f=document.getElementById('logoFile').files[0]; if(!f) return toast('Select file',true);
   const fd=new FormData(); fd.append('file',f);
-  const r=await fetch('/api/upload/logo',{method:'POST',headers:{Authorization:'Bearer '+token},body:fd});
-  const j=await r.json(); if(r.ok){ toast('Logo uploaded'); loadContent(); } else toast(j.error,true);
+  try{ await uploadWithProgress('/api/upload/logo',fd,'logoProgress','logoProgressBar'); toast('Logo uploaded — instant on site'); loadContent(); }catch(e){ toast(e.error,true); }
+}
+async function uploadLogoUrl(){
+  const url=document.getElementById('logoUrl').value.trim(); if(!url) return toast('Paste URL',true);
+  // save as content logo_url via API
+  const r=await fetch('/api/content',{method:'PUT',headers:authHeaders(),body:JSON.stringify({logo_url:url})});
+  if(r.ok){ toast('Logo URL saved'); loadContent(); } else toast('Failed',true);
 }
 async function uploadFavicon(){
-  const f=document.getElementById('faviconFile').files[0]; if(!f) return toast('Select a file',true);
+  const f=document.getElementById('faviconFile').files[0]; if(!f) return toast('Select file',true);
   const fd=new FormData(); fd.append('file',f);
-  const r=await fetch('/api/upload/favicon',{method:'POST',headers:{Authorization:'Bearer '+token},body:fd});
-  const j=await r.json(); if(r.ok){ toast('Favicon uploaded'); loadContent(); } else toast(j.error,true);
+  try{ await uploadWithProgress('/api/upload/favicon',fd,'faviconProgress','faviconProgressBar'); toast('Favicon uploaded'); loadContent(); }catch(e){ toast(e.error,true); }
+}
+async function uploadFaviconUrl(){
+  const url=document.getElementById('faviconUrl').value.trim(); if(!url) return toast('Paste URL',true);
+  const r=await fetch('/api/content',{method:'PUT',headers:authHeaders(),body:JSON.stringify({favicon_url:url})});
+  if(r.ok){ toast('Favicon URL saved'); loadContent(); } else toast('Failed',true);
+}
+async function uploadHeroFile(){
+  const f=document.getElementById('heroFile').files[0]; if(!f) return toast('Select file',true);
+  const fd=new FormData(); fd.append('file',f); fd.append('type','website'); fd.append('caption','hero');
+  try{ const j=await uploadWithProgress('/api/media',fd,'heroProgress','heroProgressBar'); document.getElementById('c_hero_image').value=j.url; await saveHero(); document.getElementById('heroPreview').innerHTML=`<img src="${j.url}" style="max-height:180px;border-radius:12px">`; toast('Hero image uploaded & applied instantly'); }catch(e){ toast(e.error,true); }
+}
+async function uploadWebsiteInstant(){
+  const f=document.getElementById('websiteFile').files[0]; if(!f) return toast('Select file',true);
+  const fd=new FormData(); fd.append('file',f); fd.append('type','website'); fd.append('caption',document.getElementById('websiteCaption').value);
+  try{ await uploadWithProgress('/api/media',fd,'websiteProgress','websiteProgressBar'); toast('Uploaded'); document.getElementById('websiteFile').value=''; document.getElementById('websitePreview').innerHTML=''; loadWebsite(); }catch(e){ toast(e.error,true); }
+}
+async function uploadWebsiteUrl(){
+  const url=document.getElementById('websiteUrl').value.trim(); if(!url) return toast('Paste URL',true);
+  const fd=new FormData(); fd.append('type','website'); fd.append('caption',document.getElementById('websiteCaption').value); fd.append('url',url);
+  try{ await uploadWithProgress('/api/media',fd,'websiteProgress','websiteProgressBar'); toast('Added via URL'); document.getElementById('websiteUrl').value=''; loadWebsite(); }catch(e){ toast(e.error,true); }
+}
+async function uploadReviewPicInstant(){
+  const f=document.getElementById('reviewPicFile').files[0]; if(!f) return toast('Select image',true);
+  const fd=new FormData(); fd.append('file',f); fd.append('type','review_pic'); fd.append('caption',document.getElementById('reviewPicCaption').value);
+  try{ await uploadWithProgress('/api/media',fd,'reviewPicProgress','reviewPicProgressBar'); toast('Picture review added'); document.getElementById('reviewPicFile').value=''; document.getElementById('reviewPicPreview').innerHTML=''; loadReviews(); }catch(e){ toast(e.error,true); }
+}
+async function uploadReviewPicUrl(){
+  const url=document.getElementById('reviewPicUrl').value.trim(); if(!url) return toast('Paste URL',true);
+  const fd=new FormData(); fd.append('type','review_pic'); fd.append('caption',document.getElementById('reviewPicCaption').value); fd.append('url',url);
+  try{ await uploadWithProgress('/api/media',fd,'reviewPicProgress','reviewPicProgressBar'); toast('Added via URL'); document.getElementById('reviewPicUrl').value=''; loadReviews(); }catch(e){ toast(e.error,true); }
+}
+async function uploadReviewVideoInstant(){
+  const f=document.getElementById('reviewVideoFile').files[0];
+  const url=document.getElementById('reviewVideoUrl').value.trim();
+  const caption=document.getElementById('reviewVideoCaption').value;
+  const fd=new FormData(); if(f) fd.append('file',f); if(url) fd.append('url',url); fd.append('type','review_video'); fd.append('caption',caption);
+  if(!f && !url) return toast('Select file OR paste YouTube link',true);
+  try{ await uploadWithProgress('/api/media',fd,'reviewVideoProgress','reviewVideoProgressBar'); toast('Video review added'); document.getElementById('reviewVideoFile').value=''; document.getElementById('reviewVideoUrl').value=''; document.getElementById('reviewVideoPreview').innerHTML=''; loadReviews(); }catch(e){ toast(e.error,true); }
+}
+async function uploadExpertInstant(){
+  const f=document.getElementById('expertFile').files[0]; if(!f) return toast('Select image',true);
+  const fd=new FormData(); fd.append('file',f); fd.append('type','expert'); fd.append('caption',document.getElementById('expertCaption').value);
+  try{ await uploadWithProgress('/api/media',fd,'expertProgress','expertProgressBar'); toast('Expert picture added'); document.getElementById('expertFile').value=''; document.getElementById('expertPreview').innerHTML=''; loadExpert(); }catch(e){ toast(e.error,true); }
+}
+async function uploadExpertUrl(){
+  const url=document.getElementById('expertUrl').value.trim(); if(!url) return toast('Paste URL',true);
+  const fd=new FormData(); fd.append('type','expert'); fd.append('caption',document.getElementById('expertCaption').value); fd.append('url',url);
+  try{ await uploadWithProgress('/api/media',fd,'expertProgress','expertProgressBar'); toast('Added via URL'); document.getElementById('expertUrl').value=''; loadExpert(); }catch(e){ toast(e.error,true); }
 }
 
-// Media portfolio/sales
-async function loadMedia(){
-  const r=await fetch('/api/media?type='+currentMediaType);
+// Media loaders
+async function loadMedia(type){
+  const r=await fetch('/api/media?type='+type);
   const data=await r.json();
-  const grid=document.getElementById('mediaGrid');
-  if(!data.length) grid.innerHTML='<div style="color:var(--muted);font-size:13px">No images yet. Upload one above.</div>';
+  const gridId= type==='portfolio' ? 'portfolioGrid' : 'salesGrid';
+  const grid=document.getElementById(gridId);
+  if(!grid) return;
+  if(!data.length) grid.innerHTML='<div style="color:var(--muted);font-size:13px;grid-column:1/-1;text-align:center;padding:24px;border:1px dashed var(--border);border-radius:12px">No images yet. Upload instantly above.</div>';
   else grid.innerHTML=data.map(m=>`
     <div class="g-item">
-      <img src="${m.url}" alt="">
-      <div class="cap">${m.caption||'No caption'}<br><button class="btn btn-danger" style="margin-top:6px;padding:6px 10px;font-size:11px" onclick="deleteMedia('${m.id}','${currentMediaType}')">Delete</button></div>
+      <img src="${esc(m.url)}" alt="" onerror="this.src='https://via.placeholder.com/400x220?text=Image'">
+      <div class="cap">${esc(m.caption||'No caption')}<div style="font-size:11px;color:var(--muted);word-break:break-all">${esc(m.url.slice(0,50))}</div><button class="btn btn-danger" style="margin-top:6px;padding:6px 10px;font-size:11px" onclick="deleteMedia('${m.id}','${type}')">Delete</button> <button class="btn btn-secondary" style="padding:6px 10px;font-size:11px" onclick="navigator.clipboard.writeText('${esc(m.url)}');toast('URL copied')">Copy URL</button></div>
     </div>
   `).join('');
-}
-async function uploadMedia(){
-  const f=document.getElementById('mediaFile').files[0]; if(!f) return toast('Select image',true);
-  const fd=new FormData(); fd.append('file',f); fd.append('type',currentMediaType); fd.append('caption',document.getElementById('mediaCaption').value);
-  const r=await fetch('/api/media',{method:'POST',headers:{Authorization:'Bearer '+token},body:fd});
-  const j=await r.json(); if(r.ok){ toast('Uploaded'); document.getElementById('mediaCaption').value=''; document.getElementById('mediaFile').value=''; loadMedia(); } else toast(j.error,true);
 }
 async function deleteMedia(id, typeHint){
   if(!confirm('Delete this image?')) return;
   await fetch('/api/media/'+id,{method:'DELETE',headers:{Authorization:'Bearer '+token}});
-  if(typeHint) loadMedia(); else { loadWebsite(); loadReviews(); loadExpert(); loadMedia(); }
+  toast('Deleted');
+  if(typeHint==='portfolio' || typeHint==='sales') loadMedia(typeHint);
+  else { loadWebsite(); loadReviews(); loadExpert(); loadMedia('portfolio'); loadMedia('sales'); }
 }
-
-// Website Images
 async function loadWebsite(){
   const r=await fetch('/api/media?type=website');
   const data=await r.json();
   const grid=document.getElementById('websiteGrid');
   if(!grid) return;
-  if(!data.length) grid.innerHTML='<div style="color:var(--muted);font-size:13px;grid-column:1/-1">No website images yet. Upload hero mockup or any inline image here.</div>';
+  if(!data.length) grid.innerHTML='<div style="color:var(--muted);font-size:13px;grid-column:1/-1">No website images yet.</div>';
   else grid.innerHTML=data.map(m=>`
     <div class="g-item">
-      <img src="${m.url}" alt="">
-      <div class="cap"><strong>${m.caption||'No caption'}</strong><div style="font-size:11px;color:var(--muted);word-break:break-all">${m.url}</div>
+      <img src="${esc(m.url)}" alt="">
+      <div class="cap"><strong>${esc(m.caption||'No caption')}</strong><div style="font-size:11px;color:var(--muted);word-break:break-all">${esc(m.url)}</div>
       <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
         <button class="btn btn-secondary" style="padding:6px 10px;font-size:11px" onclick="useAsHero('${m.url}')">Use as Hero</button>
-        <button class="btn btn-secondary" style="padding:6px 10px;font-size:11px" onclick="navigator.clipboard.writeText('${m.url}');toast('URL copied')">Copy URL</button>
+        <button class="btn btn-secondary" style="padding:6px 10px;font-size:11px" onclick="navigator.clipboard.writeText('${esc(m.url)}');toast('URL copied')">Copy URL</button>
         <button class="btn btn-danger" style="padding:6px 10px;font-size:11px" onclick="deleteMedia('${m.id}')">Delete</button>
       </div></div>
     </div>
   `).join('');
 }
-async function uploadWebsite(){
-  const f=document.getElementById('websiteFile').files[0]; if(!f) return toast('Select file',true);
-  const fd=new FormData(); fd.append('file',f); fd.append('type','website'); fd.append('caption',document.getElementById('websiteCaption').value);
-  const r=await fetch('/api/media',{method:'POST',headers:{Authorization:'Bearer '+token},body:fd});
-  const j=await r.json(); if(r.ok){ toast('Uploaded'); document.getElementById('websiteFile').value=''; document.getElementById('websiteCaption').value=''; loadWebsite(); } else toast(j.error,true);
-}
 async function useAsHero(url){
   document.getElementById('c_hero_image').value=url;
-  // also save immediately to content
   await fetch('/api/content',{method:'PUT',headers:authHeaders(),body:JSON.stringify({hero_image:url})});
-  toast('Hero image updated — also saved to Content Editor');
+  document.getElementById('heroPreview').innerHTML=`<img src="${url}" style="max-height:180px;border-radius:12px">`;
+  toast('Hero image updated instantly');
+  switchTab('hero');
 }
-
-// Reviews 4+4
 async function loadReviews(){
   const [pics, vids] = await Promise.all([
     fetch('/api/media?type=review_pic').then(r=>r.json()),
@@ -491,87 +768,63 @@ async function loadReviews(){
     if(!pics.length) picGrid.innerHTML='<div style="color:var(--muted);font-size:13px">No picture reviews yet</div>';
     else picGrid.innerHTML=pics.map(m=>`
       <div class="slot-card filled">
-        <img src="${m.url}" alt="">
-        <div style="padding:8px 10px;font-size:12px;flex:1">${m.caption||'No caption'}<br><span style="font-size:10px;color:var(--muted)">${m.url.slice(0,40)}</span></div>
-        <div style="padding:0 10px 10px"><button class="btn btn-danger" style="width:100%;justify-content:center;padding:6px" onclick="deleteMedia('${m.id}')">Delete</button></div>
+        <img src="${esc(m.url)}" alt="">
+        <div style="padding:8px 10px;font-size:12px;flex:1">${esc(m.caption||'No caption')}<br><span style="font-size:10px;color:var(--muted)">${esc(m.url.slice(0,40))}</span></div>
+        <div style="padding:0 10px 10px;display:flex;gap:6px"><button class="btn btn-secondary" style="flex:1;justify-content:center;padding:6px" onclick="navigator.clipboard.writeText('${esc(m.url)}');toast('Copied')">Copy</button><button class="btn btn-danger" style="flex:1;justify-content:center;padding:6px" onclick="deleteMedia('${m.id}')">Delete</button></div>
       </div>
     `).join('') + (pics.length<4 ? `<div class="slot-card" style="display:grid;place-items:center;color:var(--muted);font-size:12px">${4-pics.length} empty slot(s)</div>`.repeat(1) : '');
   }
   if(vidGrid){
-    if(!vids.length) vidGrid.innerHTML='<div style="color:var(--muted);font-size:13px">No video reviews yet — upload mp4 or paste YouTube link</div>';
+    if(!vids.length) vidGrid.innerHTML='<div style="color:var(--muted);font-size:13px">No video reviews yet</div>';
     else vidGrid.innerHTML=vids.map(m=>{
       const isYT=/youtu/.test(m.url);
-      const preview = isYT ? `<div style="height:140px;background:#000;color:#fff;display:grid;place-items:center;font-size:12px">▶ YouTube<br><span style="font-size:10px;word-break:break-all">${m.url.slice(0,50)}</span></div>` : `<video src="${m.url}" style="height:140px" muted></video>`;
-      return `<div class="slot-card filled">${preview}<div style="padding:8px 10px;font-size:12px;flex:1">${m.caption||'No caption'}</div><div style="padding:0 10px 10px"><button class="btn btn-danger" style="width:100%;justify-content:center;padding:6px" onclick="deleteMedia('${m.id}')">Delete</button></div></div>`;
+      const preview = isYT ? `<div style="height:140px;background:#000;color:#fff;display:grid;place-items:center;font-size:12px">▶ YouTube<br><span style="font-size:10px;word-break:break-all">${esc(m.url.slice(0,50))}</span></div>` : `<video src="${esc(m.url)}" style="height:140px" muted></video>`;
+      return `<div class="slot-card filled">${preview}<div style="padding:8px 10px;font-size:12px;flex:1">${esc(m.caption||'No caption')}</div><div style="padding:0 10px 10px;display:flex;gap:6px"><button class="btn btn-secondary" style="flex:1;justify-content:center;padding:6px" onclick="navigator.clipboard.writeText('${esc(m.url)}');toast('Copied')">Copy</button><button class="btn btn-danger" style="flex:1;justify-content:center;padding:6px" onclick="deleteMedia('${m.id}')">Delete</button></div></div>`;
     }).join('') + (vids.length<4 ? `<div class="slot-card" style="display:grid;place-items:center;color:var(--muted);font-size:12px">${4-vids.length} empty slot(s)</div>`.repeat(1) : '');
   }
 }
-async function uploadReviewPic(){
-  const f=document.getElementById('reviewPicFile').files[0]; if(!f) return toast('Select image',true);
-  const fd=new FormData(); fd.append('file',f); fd.append('type','review_pic'); fd.append('caption',document.getElementById('reviewPicCaption').value);
-  const r=await fetch('/api/media',{method:'POST',headers:{Authorization:'Bearer '+token},body:fd});
-  const j=await r.json(); if(r.ok){ toast('Picture review added'); document.getElementById('reviewPicFile').value=''; loadReviews(); } else toast(j.error,true);
-}
-async function uploadReviewVideo(){
-  const f=document.getElementById('reviewVideoFile').files[0];
-  const url=document.getElementById('reviewVideoUrl').value.trim();
-  const caption=document.getElementById('reviewVideoCaption').value;
-  const fd=new FormData();
-  if(f) fd.append('file',f);
-  if(url) fd.append('url',url);
-  fd.append('type','review_video');
-  fd.append('caption',caption);
-  if(!f && !url) return toast('Select video file OR paste YouTube link',true);
-  const r=await fetch('/api/media',{method:'POST',headers:{Authorization:'Bearer '+token},body:fd});
-  const j=await r.json(); if(r.ok){ toast('Video review added'); document.getElementById('reviewVideoFile').value=''; document.getElementById('reviewVideoUrl').value=''; loadReviews(); } else toast(j.error,true);
-}
-
-// Expert 2x2
 async function loadExpert(){
   const r=await fetch('/api/media?type=expert'); const data=await r.json();
   document.getElementById('expertCount').textContent=`${data.length} / 4 slots used (2×2 grid)`;
   const grid=document.getElementById('expertGridAdmin');
   if(!grid) return;
-  if(!data.length) grid.innerHTML='<div style="color:var(--muted);font-size:13px">No expert pictures yet — upload exactly 4 for the 2×2 grid</div>';
+  if(!data.length) grid.innerHTML='<div style="color:var(--muted);font-size:13px">No expert pictures yet</div>';
   else grid.innerHTML=data.map(m=>`
     <div class="slot-card filled">
-      <img src="${m.url}" alt="">
-      <div style="padding:8px 10px;font-size:12px;flex:1">${m.caption||'No caption'}</div>
-      <div style="padding:0 10px 10px"><button class="btn btn-danger" style="width:100%;justify-content:center;padding:6px" onclick="deleteMedia('${m.id}')">Delete</button></div>
+      <img src="${esc(m.url)}" alt="">
+      <div style="padding:8px 10px;font-size:12px;flex:1">${esc(m.caption||'No caption')}</div>
+      <div style="padding:0 10px 10px;display:flex;gap:6px"><button class="btn btn-secondary" style="flex:1;justify-content:center;padding:6px" onclick="navigator.clipboard.writeText('${esc(m.url)}');toast('Copied')">Copy</button><button class="btn btn-danger" style="flex:1;justify-content:center;padding:6px" onclick="deleteMedia('${m.id}')">Delete</button></div>
     </div>
   `).join('') + (data.length<4 ? Array(4-data.length).fill('<div class="slot-card" style="display:grid;place-items:center;color:var(--muted);font-size:12px">Empty slot</div>').join('') : '');
 }
-async function uploadExpert(){
-  const f=document.getElementById('expertFile').files[0]; if(!f) return toast('Select image',true);
-  const fd=new FormData(); fd.append('file',f); fd.append('type','expert'); fd.append('caption',document.getElementById('expertCaption').value);
-  const r=await fetch('/api/media',{method:'POST',headers:{Authorization:'Bearer '+token},body:fd});
-  const j=await r.json(); if(r.ok){ toast('Expert picture added'); document.getElementById('expertFile').value=''; loadExpert(); } else toast(j.error,true);
-}
-
-// Testimonials
 async function loadTestimonials(){
   const r=await fetch('/api/testimonials'); const data=await r.json();
   document.getElementById('testiList').innerHTML=data.map(t=>`
     <div class="card" style="display:flex;justify-content:space-between;align-items:start;gap:12px">
-      <div><div style="font-weight:700">${t.name} <span style="color:var(--muted);font-weight:400">— ${t.role||''}</span></div><div style="font-size:13px;margin-top:4px">${t.quote}</div></div>
+      <div><div style="font-weight:700">${esc(t.name)} <span style="color:var(--muted);font-weight:400">— ${esc(t.role||'')}</span></div><div style="font-size:13px;margin-top:4px">${esc(t.quote)}</div></div>
       <button class="btn btn-danger" onclick="deleteTesti('${t.id}')">Delete</button>
     </div>
   `).join('');
 }
 async function addTestimonial(){
-  const body={ name:document.getElementById('t_name').value, role:document.getElementById('t_role').value, quote:document.getElementById('t_quote').value, photo:document.getElementById('t_photo').value };
+  const file=document.getElementById('t_photoFile').files[0];
+  let photo=document.getElementById('t_photo').value;
+  if(file){
+    const fd=new FormData(); fd.append('file',file); fd.append('type','website'); fd.append('caption','testimonial');
+    const xhr=await uploadWithProgress('/api/media',fd,'websiteProgress','websiteProgressBar');
+    photo=xhr.url;
+  }
+  const body={ name:document.getElementById('t_name').value, role:document.getElementById('t_role').value, quote:document.getElementById('t_quote').value, photo:photo };
   if(!body.name||!body.quote) return toast('Name and quote required',true);
   const r=await fetch('/api/testimonials',{method:'POST',headers:authHeaders(),body:JSON.stringify(body)});
-  if(r.ok){ toast('Added'); loadTestimonials(); } else toast('Failed',true);
+  if(r.ok){ toast('Added'); loadTestimonials(); document.getElementById('t_name').value=''; document.getElementById('t_quote').value=''; } else toast('Failed',true);
 }
-async function deleteTesti(id){ await fetch('/api/testimonials/'+id,{method:'DELETE',headers:{Authorization:'Bearer '+token}}); loadTestimonials(); }
-
-// FAQs
+async function deleteTesti(id){ await fetch('/api/testimonials/'+id,{method:'DELETE',headers:{Authorization:'Bearer '+token}}); loadTestimonials(); toast('Deleted'); }
 async function loadFaqs(){
   const r=await fetch('/api/faqs'); const data=await r.json();
   document.getElementById('faqListAdmin').innerHTML=data.map(f=>`
     <div class="card" style="display:flex;justify-content:space-between;gap:12px">
-      <div><div style="font-weight:700">${f.question}</div><div style="font-size:13px;color:var(--muted);margin-top:4px">${f.answer}</div></div>
+      <div><div style="font-weight:700">${esc(f.question)}</div><div style="font-size:13px;color:var(--muted);margin-top:4px">${esc(f.answer)}</div></div>
       <button class="btn btn-danger" onclick="deleteFaq('${f.id}')">Delete</button>
     </div>
   `).join('');
@@ -580,11 +833,9 @@ async function addFaq(){
   const q=document.getElementById('faq_q').value, a=document.getElementById('faq_a').value;
   if(!q||!a) return toast('Both fields required',true);
   await fetch('/api/faqs',{method:'POST',headers:authHeaders(),body:JSON.stringify({question:q,answer:a})});
-  toast('FAQ added'); loadFaqs();
+  toast('FAQ added'); document.getElementById('faq_q').value=''; document.getElementById('faq_a').value=''; loadFaqs();
 }
-async function deleteFaq(id){ await fetch('/api/faqs/'+id,{method:'DELETE',headers:{Authorization:'Bearer '+token}}); loadFaqs(); }
-
-// Leads
+async function deleteFaq(id){ await fetch('/api/faqs/'+id,{method:'DELETE',headers:{Authorization:'Bearer '+token}}); loadFaqs(); toast('Deleted'); }
 async function loadLeads(){
   const r=await fetch('/api/leads',{headers:{Authorization:'Bearer '+token}});
   allLeads=await r.json();
@@ -593,15 +844,15 @@ async function loadLeads(){
 function renderLeads(list){
   document.getElementById('leadsBody').innerHTML=list.map(l=>`
     <tr>
-      <td><strong>${l.name}</strong><br><span style="color:var(--muted);font-size:11px">${l.storeName}</span></td>
-      <td>${l.budget}</td>
-      <td>${l.storeStatus}</td>
-      <td>${l.wasScammed==='yes'?'⚠️ Yes':'No'}${l.scamDetails?`<br><span style="font-size:11px;color:var(--muted)">${l.scamDetails.slice(0,60)}</span>`:''}</td>
-      <td><a href="https://wa.me/${l.whatsapp.replace(/\D/g,'')}" target="_blank">${l.whatsapp}</a></td>
-      <td>${l.email}</td>
-      <td>${l.source||'-'}</td>
+      <td><strong>${esc(l.name)}</strong><br><span style="color:var(--muted);font-size:11px">${esc(l.storeName)}</span></td>
+      <td>${esc(l.budget)}</td>
+      <td>${esc(l.storeStatus)}</td>
+      <td>${l.wasScammed==='yes'?'⚠️ Yes':'No'}${l.scamDetails?`<br><span style="font-size:11px;color:var(--muted)">${esc(l.scamDetails.slice(0,60))}</span>`:''}</td>
+      <td><a href="https://wa.me/${l.whatsapp.replace(/\D/g,'')}" target="_blank">${esc(l.whatsapp)}</a></td>
+      <td>${esc(l.email)}</td>
+      <td>${esc(l.source||'-')}</td>
       <td>${new Date(l.submittedAt).toLocaleDateString()}</td>
-      <td><span class="badge badge-${l.status}">${l.status}</span></td>
+      <td><span class="badge badge-${l.status}">${esc(l.status)}</span></td>
       <td><select onchange="updateLeadStatus('${l.id}',this.value)" class="input" style="padding:4px 6px;font-size:11px"><option value="new" ${l.status==='new'?'selected':''}>New</option><option value="contacted" ${l.status==='contacted'?'selected':''}>Contacted</option><option value="booked" ${l.status==='booked'?'selected':''}>Booked</option><option value="closed" ${l.status==='closed'?'selected':''}>Closed</option></select></td>
     </tr>
   `).join('') || '<tr><td colspan="11" style="text-align:center;color:var(--muted)">No leads yet</td></tr>';
@@ -625,8 +876,6 @@ function exportLeads(){
     const url=URL.createObjectURL(b); const a=document.createElement('a'); a.href=url; a.download='waywealth_leads.csv'; a.click();
   });
 }
-
-// Analytics
 async function loadAnalytics(){
   const range=document.getElementById('rangeSel').value;
   const r=await fetch('/api/analytics?range='+range,{headers:{Authorization:'Bearer '+token}});
@@ -639,10 +888,10 @@ async function loadAnalytics(){
   `;
   renderBar('viewsChart','viewsLabels',d.dailyViews);
   renderBar('leadsChart','leadsLabels',d.leadsDaily);
-  document.getElementById('ctaBreakdown').innerHTML = d.ctaClicks.length? d.ctaClicks.map(c=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px"><span>${c.element_id}</span><strong>${c.c}</strong></div>`).join('') : '<span style="color:var(--muted);font-size:13px">No clicks yet</span>';
+  document.getElementById('ctaBreakdown').innerHTML = d.ctaClicks.length? d.ctaClicks.map(c=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px"><span>${esc(c.element_id)}</span><strong>${c.c}</strong></div>`).join('') : '<span style="color:var(--muted);font-size:13px">No clicks yet</span>';
   const rate = d.formStarts? `${d.formSubmits} / ${d.formStarts} completed` : 'No data';
   document.getElementById('funnelBox').innerHTML=`<div style="font-size:13px">Form starts: <strong>${d.formStarts}</strong></div><div style="font-size:13px">Form submits: <strong>${d.formSubmits}</strong></div><div style="font-size:13px;margin-top:6px;color:var(--muted)">${rate}</div>`;
-  document.getElementById('sourceBox').innerHTML = d.trafficSource.length? d.trafficSource.map(s=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px"><span>${s.label||'Unknown'}</span><strong>${s.c}</strong></div>`).join('') : '<span style="color:var(--muted);font-size:13px">No source data</span>';
+  document.getElementById('sourceBox').innerHTML = d.trafficSource.length? d.trafficSource.map(s=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px"><span>${esc(s.label||'Unknown')}</span><strong>${s.c}</strong></div>`).join('') : '<span style="color:var(--muted);font-size:13px">No source data</span>';
 }
 function renderBar(chartId,labelId,data){
   const chart=document.getElementById(chartId), labels=document.getElementById(labelId);
@@ -656,7 +905,6 @@ async function changePass(){
   const r=await fetch('/api/auth/change-password',{method:'POST',headers:authHeaders(),body:JSON.stringify({currentPassword:cur,newPassword:nw})});
   const j=await r.json(); if(r.ok) toast('Password updated'); else toast(j.error,true);
 }
-
 checkAuth();
 </script>
 </body>
