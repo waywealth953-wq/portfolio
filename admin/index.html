@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WayWealth — Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#0B1D3A;--accent:#0E9F6E;--bg:#f1f5f9;--card:#fff;--border:#e2e8f0;--muted:#64748b;--radius:14px}
+*{box-sizing:border-box;margin:0;padding:0}body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:#0f172a}
+a{color:inherit;text-decoration:none}
+.btn{padding:10px 16px;border-radius:10px;font-weight:600;font-size:13px;cursor:pointer;border:none;display:inline-flex;align-items:center;gap:6px}
+.btn-primary{background:var(--accent);color:#fff}.btn-secondary{background:#fff;border:1px solid var(--border)}
+.btn-danger{background:#ef4444;color:#fff}
+.input,select,textarea{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-family:inherit;outline:none}
+.input:focus,select:focus,textarea:focus{border-color:var(--accent)}
+.card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);padding:20px}
+.login-wrap{min-height:100vh;display:grid;place-items:center;padding:24px}
+.login-card{width:100%;max-width:400px}
+.sidebar{position:fixed;left:0;top:0;bottom:0;width:250px;background:var(--primary);color:#cbd5e1;padding:20px;display:flex;flex-direction:column;gap:6px;overflow:auto}
+.sidebar .logo{color:#fff;font-weight:900;font-size:18px;margin-bottom:12px}
+.sidebar a{padding:9px 12px;border-radius:10px;font-size:12.5px;font-weight:500;cursor:pointer;display:flex;gap:8px;align-items:center}
+.sidebar a.active,.sidebar a:hover{background:rgba(255,255,255,0.12);color:#fff}
+.main{margin-left:250px;padding:24px;min-height:100vh}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;flex-wrap:wrap;gap:10px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:900px){.sidebar{position:static;width:auto}.main{margin-left:0}.grid2{grid-template-columns:1fr}}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{ text-align:left;padding:10px 12px;background:#f8fafc;border-bottom:1px solid var(--border);font-weight:700;white-space:nowrap}
+td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
+.badge{padding:3px 8px;border-radius:999px;font-size:11px;font-weight:700}
+.badge-new{background:#eff6ff;color:#2563eb}.badge-contacted{background:#fef3c7;color:#92400e}.badge-booked{background:#dcfce7;color:#166534}.badge-closed{background:#f1f5f9;color:#64748b}
+.gallery-admin{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px}
+.g-item{background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.g-item img,.g-item video{width:100%;height:140px;object-fit:cover}
+.g-item .cap{padding:8px 10px;font-size:12px}
+.tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+.tab{padding:8px 14px;border-radius:999px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid var(--border);background:#fff}
+.tab.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.hidden{display:none !important}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--primary);color:#fff;padding:12px 16px;border-radius:10px;font-size:13px;transform:translateY(80px);opacity:0;transition:.3s;z-index:99}
+.toast.show{transform:none;opacity:1}
+.stat-cards{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.stat{padding:16px}
+.stat-val{font-size:22px;font-weight:900}
+.stat-lbl{font-size:12px;color:var(--muted)}
+@media(max-width:900px){.stat-cards{grid-template-columns:repeat(2,1fr)}}
+.chart-bar{display:flex;align-items:end;gap:4px;height:120px;margin-top:12px}
+.bar{flex:1;background:var(--accent);border-radius:6px 6px 0 0;min-width:8px}
+.slot-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:900px){.slot-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.slot-grid{grid-template-columns:1fr}}
+.slot-card{background:#fff;border:1.5px dashed var(--border);border-radius:12px;overflow:hidden;min-height:200px;display:flex;flex-direction:column}
+.slot-card.filled{border-style:solid}
+.slot-card img,.slot-card video{width:100%;height:140px;object-fit:cover}
+</style>
+</head>
+<body>
+
+<div id="loginView" class="login-wrap">
+  <div class="card login-card">
+    <div style="font-weight:900;font-size:22px;text-align:center">WayWealth Admin</div>
+    <p style="text-align:center;color:var(--muted);font-size:13px;margin-top:6px">Private dashboard — owner only</p>
+    <div style="margin-top:20px;display:flex;flex-direction:column;gap:12px">
+      <input class="input" id="loginUser" placeholder="Username" value="admin">
+      <input class="input" id="loginPass" placeholder="Password" type="password" value="">
+      <button class="btn btn-primary" style="justify-content:center" onclick="login()">Sign In</button>
+      <p style="font-size:11px;color:var(--muted);text-align:center">Default: admin / WayWealth2024! — change after first login</p>
+      <div id="loginErr" style="color:#ef4444;font-size:13px;text-align:center"></div>
+    </div>
+  </div>
+</div>
+
+<div id="appView" class="hidden">
+  <div class="sidebar" id="sidebar">
+    <div class="logo">WayWealth — Admin</div>
+    <a data-tab="analytics" class="active" onclick="switchTab('analytics')">📊 Analytics</a>
+    <a data-tab="content" onclick="switchTab('content')">✏️ Content Editor</a>
+    <a data-tab="website" onclick="switchTab('website')">🖼️ Website Images</a>
+    <a data-tab="media" onclick="switchTab('media')">🗂️ Portfolio / Proof</a>
+    <a data-tab="reviews" onclick="switchTab('reviews')">⭐ Reviews (4+4)</a>
+    <a data-tab="expert" onclick="switchTab('expert')">👨‍💼 Expert (2×2)</a>
+    <a data-tab="testimonials" onclick="switchTab('testimonials')">💬 Testimonials</a>
+    <a data-tab="faqs" onclick="switchTab('faqs')">❓ FAQs</a>
+    <a data-tab="leads" onclick="switchTab('leads')">👥 Leads</a>
+    <a data-tab="settings" onclick="switchTab('settings')">⚙️ Settings</a>
+    <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
+      <a href="/" target="_blank">🌐 View Live Site</a>
+      <a onclick="logout()" style="cursor:pointer">🚪 Logout</a>
+    </div>
+  </div>
+  <div class="main">
+    <div class="topbar">
+      <h2 id="pageTitle" style="font-size:20px;font-weight:800">Analytics</h2>
+      <div style="display:flex;gap:8px;align-items:center">
+        <select id="rangeSel" onchange="loadAnalytics()" class="input" style="width:auto">
+          <option value="7d">Last 7 days</option><option value="30d" selected>Last 30 days</option><option value="90d">Last 90 days</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div id="tab-analytics">
+      <div class="stat-cards" id="statCards"></div>
+      <div class="grid2">
+        <div class="card"><h4>Daily Page Views</h4><div id="viewsChart" class="chart-bar"></div><div id="viewsLabels" style="display:flex;gap:4px;font-size:10px;color:var(--muted);margin-top:4px"></div></div>
+        <div class="card"><h4>Daily Leads</h4><div id="leadsChart" class="chart-bar"></div><div id="leadsLabels" style="display:flex;gap:4px;font-size:10px;color:var(--muted);margin-top:4px"></div></div>
+      </div>
+      <div class="grid2" style="margin-top:16px">
+        <div class="card"><h4>CTA Clicks by Placement</h4><div id="ctaBreakdown" style="margin-top:12px"></div></div>
+        <div class="card"><h4>Funnel</h4><div id="funnelBox" style="margin-top:12px"></div></div>
+      </div>
+      <div class="card" style="margin-top:16px"><h4>Traffic Source (from Leads)</h4><div id="sourceBox" style="margin-top:12px"></div></div>
+    </div>
+
+    <!-- CONTENT -->
+    <div id="tab-content" class="hidden">
+      <div class="card">
+        <h3>Theme & Brand</h3>
+        <div class="grid2" style="margin-top:14px">
+          <div><label style="font-size:12px;font-weight:600">Site Name</label><input class="input" id="c_site_name"></div>
+          <div><label style="font-size:12px;font-weight:600">Font Family</label><select id="c_font_family" class="input"><option>Inter</option><option>Poppins</option><option>Outfit</option><option>Manrope</option><option>DM Sans</option></select></div>
+          <div><label style="font-size:12px;font-weight:600">Primary Color</label><input type="color" id="c_color_primary" class="input" style="height:42px;padding:4px"></div>
+          <div><label style="font-size:12px;font-weight:600">Accent Color</label><input type="color" id="c_color_accent" class="input" style="height:42px;padding:4px"></div>
+          <div><label style="font-size:12px;font-weight:600">Background</label><input type="color" id="c_color_background" class="input" style="height:42px;padding:4px"></div>
+          <div><label style="font-size:12px;font-weight:600">Button Color</label><input type="color" id="c_color_button" class="input" style="height:42px;padding:4px"></div>
+          <div><label style="font-size:12px;font-weight:600">WhatsApp Number (digits only)</label><input class="input" id="c_whatsapp_number" placeholder="2348123456789"></div>
+          <div><label style="font-size:12px;font-weight:600">Booking Link (Calendly/Cal.com)</label><input class="input" id="c_booking_link"></div>
+        </div>
+        <div style="margin-top:12px"><label style="font-size:12px;font-weight:600">WhatsApp Prefilled Message</label><textarea id="c_whatsapp_message" rows="2" class="input"></textarea></div>
+        <div class="grid2" style="margin-top:12px">
+          <div><label style="font-size:12px;font-weight:600">Logo Upload</label><div style="display:flex;gap:8px"><input type="file" id="logoFile" accept="image/*" class="input"><button class="btn btn-secondary" onclick="uploadLogo()">Upload</button></div><div id="logoPreview" style="margin-top:8px"></div></div>
+          <div><label style="font-size:12px;font-weight:600">Favicon Upload</label><div style="display:flex;gap:8px"><input type="file" id="faviconFile" accept="image/*" class="input"><button class="btn btn-secondary" onclick="uploadFavicon()">Upload</button></div><div id="faviconPreview" style="margin-top:8px"></div></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Hero Section</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px">
+          <label style="font-size:12px;font-weight:600">Badge</label><input class="input" id="c_hero_badge">
+          <label style="font-size:12px;font-weight:600">Headline</label><textarea id="c_hero_headline" rows="2" class="input"></textarea>
+          <label style="font-size:12px;font-weight:600">Subheadline</label><textarea id="c_hero_subheadline" rows="2" class="input"></textarea>
+          <label style="font-size:12px;font-weight:600">Hero Image URL (or use Website Images → hero)</label><input class="input" id="c_hero_image">
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Stats Strip (4 stats)</h3>
+        <div class="grid2" style="margin-top:12px">
+          <div><label style="font-size:12px;font-weight:600">Stat 1 Value</label><input class="input" id="c_proof_stat_1_value"><label style="font-size:12px;font-weight:600">Label</label><input class="input" id="c_proof_stat_1_label"></div>
+          <div><label style="font-size:12px;font-weight:600">Stat 2 Value</label><input class="input" id="c_proof_stat_2_value"><label style="font-size:12px;font-weight:600">Label</label><input class="input" id="c_proof_stat_2_label"></div>
+          <div><label style="font-size:12px;font-weight:600">Stat 3 Value</label><input class="input" id="c_proof_stat_3_value"><label style="font-size:12px;font-weight:600">Label</label><input class="input" id="c_proof_stat_3_label"></div>
+          <div><label style="font-size:12px;font-weight:600">Stat 4 Value</label><input class="input" id="c_proof_stat_4_value"><label style="font-size:12px;font-weight:600">Label</label><input class="input" id="c_proof_stat_4_label"></div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>How It Works</h3>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+          <label style="font-size:12px;font-weight:600">Section Title</label><input class="input" id="c_hiw_title">
+          <label style="font-size:12px;font-weight:600">Subtitle</label><input class="input" id="c_hiw_subtitle">
+          <div class="grid2">
+            <div><label style="font-size:12px;font-weight:600">Step 1 Title</label><input class="input" id="c_hiw_step1_title"><label style="font-size:12px;font-weight:600">Desc</label><textarea id="c_hiw_step1_desc" rows="2" class="input"></textarea></div>
+            <div><label style="font-size:12px;font-weight:600">Step 2 Title</label><input class="input" id="c_hiw_step2_title"><label style="font-size:12px;font-weight:600">Desc</label><textarea id="c_hiw_step2_desc" rows="2" class="input"></textarea></div>
+            <div><label style="font-size:12px;font-weight:600">Step 3 Title</label><input class="input" id="c_hiw_step3_title"><label style="font-size:12px;font-weight:600">Desc</label><textarea id="c_hiw_step3_desc" rows="2" class="input"></textarea></div>
+            <div><label style="font-size:12px;font-weight:600">Step 4 Title</label><input class="input" id="c_hiw_step4_title"><label style="font-size:12px;font-weight:600">Desc</label><textarea id="c_hiw_step4_desc" rows="2" class="input"></textarea></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Client Reviews & Expert & Other Sections</h3>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+          <label style="font-size:12px;font-weight:600">Pricing Title</label><input class="input" id="c_pricing_title">
+          <label style="font-size:12px;font-weight:600">Pricing Subtitle</label><input class="input" id="c_pricing_subtitle">
+          <label style="font-size:12px;font-weight:600">Reviews Title (Client Reviews)</label><input class="input" id="c_testimonials_title">
+          <label style="font-size:12px;font-weight:600">Reviews Subtitle</label><input class="input" id="c_testimonials_subtitle">
+          <label style="font-size:12px;font-weight:600">Expert Title</label><input class="input" id="c_expert_title">
+          <label style="font-size:12px;font-weight:600">Expert Subtitle</label><input class="input" id="c_expert_subtitle">
+          <label style="font-size:12px;font-weight:600">FAQ Title</label><input class="input" id="c_faq_title">
+          <label style="font-size:12px;font-weight:600">FAQ Subtitle</label><input class="input" id="c_faq_subtitle">
+          <label style="font-size:12px;font-weight:600">CTA Title</label><input class="input" id="c_cta_title">
+          <label style="font-size:12px;font-weight:600">CTA Subtitle</label><input class="input" id="c_cta_subtitle">
+        </div>
+      </div>
+
+      <div class="card" style="margin-top:16px">
+        <h3>Urgency Banner & Footer</h3>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:12px">
+          <label style="font-size:12px;font-weight:600"><input type="checkbox" id="c_banner_enabled"> Enable urgency banner</label>
+          <input class="input" id="c_banner_text" placeholder="Banner text">
+          <label style="font-size:12px;font-weight:600">Footer Text</label><input class="input" id="c_footer_text">
+          <label style="font-size:12px;font-weight:600">Footer Email</label><input class="input" id="c_footer_email">
+          <label style="font-size:12px;font-weight:600">Footer Address</label><input class="input" id="c_footer_address">
+        </div>
+      </div>
+
+      <button class="btn btn-primary" style="margin-top:16px;width:100%;justify-content:center;padding:14px" onclick="saveContent()">💾 Save All Content</button>
+    </div>
+
+    <!-- WEBSITE IMAGES -->
+    <div id="tab-website" class="hidden">
+      <div class="card">
+        <h3>Website Image Manager</h3>
+        <p style="font-size:13px;color:var(--muted);margin-top:4px">Upload, update, or remove any image displayed on the website — hero mockup, inline graphics, banners. These are used across the site (hero, sections).</p>
+        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+          <input type="file" id="websiteFile" accept="image/*,video/*" class="input" style="flex:1;min-width:180px">
+          <input id="websiteCaption" placeholder="Caption / usage note (e.g. Hero mockup)" class="input" style="flex:1;min-width:180px">
+          <button class="btn btn-primary" onclick="uploadWebsite()">Upload</button>
+        </div>
+        <div style="margin-top:8px;font-size:11px;color:var(--muted)">Tip: To set as hero image, copy the URL after upload and paste it in Content Editor → Hero Image URL, or click “Use as Hero”.</div>
+      </div>
+      <div class="gallery-admin" id="websiteGrid" style="margin-top:16px"></div>
+    </div>
+
+    <!-- MEDIA: PORTFOLIO / PROOF -->
+    <div id="tab-media" class="hidden">
+      <div class="tabs"><button class="tab active" id="mediaTabPortfolio" onclick="switchMedia('portfolio')">Portfolio</button><button class="tab" id="mediaTabSales" onclick="switchMedia('sales')">Sales Proof</button></div>
+      <div class="card">
+        <h4>Upload Image</h4>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <input type="file" id="mediaFile" accept="image/*" class="input" style="flex:1;min-width:180px">
+          <input id="mediaCaption" placeholder="Caption" class="input" style="flex:1;min-width:180px">
+          <button class="btn btn-primary" onclick="uploadMedia()">Upload</button>
+        </div>
+      </div>
+      <div class="gallery-admin" id="mediaGrid" style="margin-top:16px"></div>
+    </div>
+
+    <!-- REVIEWS: 4 pics + 4 videos -->
+    <div id="tab-reviews" class="hidden">
+      <div class="card" style="border-left:4px solid var(--accent)">
+        <h3>⭐ Client Reviews — Exactly 4 Pictures + 4 Videos</h3>
+        <p style="font-size:13px;color:var(--muted);margin-top:4px">Frontend displays 4 picture reviews at top and 4 video reviews below. Limit enforced: delete one to add another.</p>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h4>📸 Picture Reviews (max 4)</h4>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <input type="file" id="reviewPicFile" accept="image/*" class="input" style="flex:1;min-width:180px">
+          <input id="reviewPicCaption" placeholder="Caption" class="input" style="flex:1;min-width:180px">
+          <button class="btn btn-primary" onclick="uploadReviewPic()">Upload Picture</button>
+        </div>
+        <div id="reviewPicCount" style="font-size:12px;color:var(--muted);margin-top:6px"></div>
+        <div class="slot-grid" id="reviewPicGrid" style="margin-top:12px"></div>
+      </div>
+      <div class="card" style="margin-top:16px">
+        <h4>🎥 Video Reviews (max 4) — upload video file OR paste YouTube/embed link</h4>
+        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+          <input type="file" id="reviewVideoFile" accept="video/*" class="input" style="flex:1;min-width:160px">
+          <input id="reviewVideoUrl" placeholder="OR paste YouTube link (https://youtu.be/...)" class="input" style="flex:1;min-width:180px">
+          <input id="reviewVideoCaption" placeholder="Caption" class="input" style="flex:1;min-width:140px">
+          <button class="btn btn-primary" onclick="uploadReviewVideo()">Add Video</button>
+        </div>
+        <div id="reviewVideoCount" style="font-size:12px;color:var(--muted);margin-top:6px"></div>
+        <div class="slot-grid" id="reviewVideoGrid" style="margin-top:12px"></div>
+      </div>
+    </div>
+
+    <!-- EXPERT 2x2 -->
+    <div id="tab-expert" class="hidden">
+      <div class="card" style="border-left:4px solid var(--primary)">
+        <h3>👨‍💼 Meet the Expert — Exactly 4 Pictures (2×2 grid)</h3>
+        <p style="font-size:13px;color:var(--muted);margin-top:4px">Frontend shows a 2-column, 2-row grid. Max 4 — delete one to replace.</p>
+        <div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap">
+          <input type="file" id="expertFile" accept="image/*" class="input" style="flex:1;min-width:180px">
+          <input id="expertCaption" placeholder="Caption / name (e.g. John — Founder)" class="input" style="flex:1;min-width:180px">
+          <button class="btn btn-primary" onclick="uploadExpert()">Upload Expert Pic</button>
+        </div>
+        <div id="expertCount" style="font-size:12px;color:var(--muted);margin-top:6px"></div>
+      </div>
+      <div class="slot-grid" id="expertGridAdmin" style="margin-top:16px"></div>
+    </div>
+
+    <!-- TESTIMONIALS (legacy text) -->
+    <div id="tab-testimonials" class="hidden">
+      <div class="card">
+        <h4>Add Text Testimonial (legacy)</h4>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
+          <input id="t_name" placeholder="Name" class="input">
+          <input id="t_role" placeholder="Role (e.g. Fashion Store Owner)" class="input">
+          <textarea id="t_quote" placeholder="Quote" rows="2" class="input"></textarea>
+          <input id="t_photo" placeholder="Photo URL (optional)" class="input">
+          <button class="btn btn-primary" onclick="addTestimonial()">Add</button>
+        </div>
+      </div>
+      <div id="testiList" style="margin-top:16px;display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+
+    <!-- FAQS -->
+    <div id="tab-faqs" class="hidden">
+      <div class="card">
+        <h4>Add FAQ</h4>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:10px">
+          <input id="faq_q" placeholder="Question" class="input">
+          <textarea id="faq_a" placeholder="Answer" rows="2" class="input"></textarea>
+          <button class="btn btn-primary" onclick="addFaq()">Add FAQ</button>
+        </div>
+      </div>
+      <div id="faqListAdmin" style="margin-top:16px;display:flex;flex-direction:column;gap:10px"></div>
+    </div>
+
+    <!-- LEADS -->
+    <div id="tab-leads" class="hidden">
+      <div style="display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap">
+        <input id="leadSearch" placeholder="Search name, email, whatsapp..." class="input" style="flex:1;min-width:200px" oninput="filterLeads()">
+        <select id="leadStatusFilter" class="input" style="width:auto" onchange="filterLeads()"><option value="">All statuses</option><option value="new">New</option><option value="contacted">Contacted</option><option value="booked">Booked</option><option value="closed">Closed</option></select>
+        <button class="btn btn-secondary" onclick="exportLeads()">⬇ Export CSV</button>
+      </div>
+      <div class="card table-wrap"><table><thead><tr><th>Name</th><th>Store</th><th>Budget</th><th>Status</th><th>Scammed</th><th>WhatsApp</th><th>Email</th><th>Source</th><th>Date</th><th>Lead Status</th><th></th></tr></thead><tbody id="leadsBody"></tbody></table></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div id="tab-settings" class="hidden">
+      <div class="card">
+        <h3>Change Password</h3>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-top:12px;max-width:400px">
+          <input type="password" id="curPass" placeholder="Current password" class="input">
+          <input type="password" id="newPass" placeholder="New password" class="input">
+          <button class="btn btn-primary" onclick="changePass()">Update Password</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+let token = localStorage.getItem('ww_token');
+let currentMediaType='portfolio';
+let allLeads=[];
+let contentData={};
+
+function authHeaders(){ return {'Content-Type':'application/json','Authorization':'Bearer '+token}; }
+
+async function login(){
+  const u=document.getElementById('loginUser').value, p=document.getElementById('loginPass').value;
+  const r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:u,password:p})});
+  const j=await r.json();
+  if(!r.ok){ document.getElementById('loginErr').textContent=j.error||'Login failed'; return; }
+  token=j.token; localStorage.setItem('ww_token',token);
+  init();
+}
+function logout(){ localStorage.removeItem('ww_token'); location.reload(); }
+function checkAuth(){
+  if(token) init();
+  else { document.getElementById('loginView').classList.remove('hidden'); document.getElementById('appView').classList.add('hidden'); }
+}
+async function init(){
+  const r=await fetch('/api/auth/me',{headers:{Authorization:'Bearer '+token}});
+  if(!r.ok){ logout(); return; }
+  document.getElementById('loginView').classList.add('hidden');
+  document.getElementById('appView').classList.remove('hidden');
+  loadContent(); loadAnalytics(); loadMedia(); loadWebsite(); loadReviews(); loadExpert(); loadTestimonials(); loadFaqs(); loadLeads();
+}
+function switchTab(tab){
+  document.querySelectorAll('.sidebar a[data-tab]').forEach(a=>a.classList.toggle('active',a.dataset.tab===tab));
+  document.querySelectorAll('[id^="tab-"]').forEach(el=>el.classList.add('hidden'));
+  const el=document.getElementById('tab-'+tab);
+  if(el) el.classList.remove('hidden');
+  document.getElementById('pageTitle').textContent=tab.charAt(0).toUpperCase()+tab.slice(1);
+  if(tab==='analytics') loadAnalytics();
+  if(tab==='leads') loadLeads();
+  if(tab==='website') loadWebsite();
+  if(tab==='reviews') loadReviews();
+  if(tab==='expert') loadExpert();
+}
+function switchMedia(type){
+  currentMediaType = type==='sales'?'sales':'portfolio';
+  document.getElementById('mediaTabPortfolio').classList.toggle('active',currentMediaType==='portfolio');
+  document.getElementById('mediaTabSales').classList.toggle('active',currentMediaType==='sales');
+  loadMedia();
+}
+function toast(msg,err){ const t=document.getElementById('toast'); t.textContent=msg; t.style.background=err?'#ef4444':'var(--primary)'; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2500); }
+
+// Content
+async function loadContent(){
+  const r=await fetch('/api/content'); contentData=await r.json();
+  Object.keys(contentData).forEach(k=>{
+    const el=document.getElementById('c_'+k);
+    if(el){
+      if(el.type==='checkbox') el.checked = contentData[k]==='true';
+      else if(el.type==='color') el.value = contentData[k]||'#000000';
+      else el.value = contentData[k];
+    }
+  });
+  if(contentData.logo_url) document.getElementById('logoPreview').innerHTML=`<img src="${contentData.logo_url}" style="height:40px;border:1px solid var(--border);border-radius:8px">`;
+  if(contentData.favicon_url) document.getElementById('faviconPreview').innerHTML=`<img src="${contentData.favicon_url}" style="height:32px">`;
+}
+async function saveContent(){
+  const fields=[
+    'site_name','font_family','color_primary','color_accent','color_background','color_button','whatsapp_number','whatsapp_message','booking_link',
+    'hero_badge','hero_headline','hero_subheadline','hero_image',
+    'proof_stat_1_value','proof_stat_1_label','proof_stat_2_value','proof_stat_2_label','proof_stat_3_value','proof_stat_3_label','proof_stat_4_value','proof_stat_4_label',
+    'hiw_title','hiw_subtitle','hiw_step1_title','hiw_step1_desc','hiw_step2_title','hiw_step2_desc','hiw_step3_title','hiw_step3_desc','hiw_step4_title','hiw_step4_desc',
+    'pricing_title','pricing_subtitle','testimonials_title','testimonials_subtitle','expert_title','expert_subtitle','faq_title','faq_subtitle','cta_title','cta_subtitle',
+    'banner_text','footer_text','footer_email','footer_address'
+  ];
+  const payload={};
+  fields.forEach(k=>{
+    const el=document.getElementById('c_'+k);
+    if(el) payload[k]=el.value;
+  });
+  payload['banner_enabled']= document.getElementById('c_banner_enabled').checked ? 'true':'false';
+  const r=await fetch('/api/content',{method:'PUT',headers:authHeaders(),body:JSON.stringify(payload)});
+  if(r.ok) toast('Content saved!');
+  else toast('Save failed',true);
+}
+async function uploadLogo(){
+  const f=document.getElementById('logoFile').files[0]; if(!f) return toast('Select a file',true);
+  const fd=new FormData(); fd.append('file',f);
+  const r=await fetch('/api/upload/logo',{method:'POST',headers:{Authorization:'Bearer '+token},body:fd});
+  const j=await r.json(); if(r.ok){ toast('Logo uploaded'); loadContent(); } else toast(j.error,true);
+}
+async function uploadFavicon(){
+  const f=document.getElementById('faviconFile').files[0]; if(!f) return toast('Select a file',true);
+  const fd=new FormData(); fd.append('file',f);
+  const r=await fetch('/api/upload/favicon',{method:'POST',headers:{Authorization:'Bearer '+token},body:fd});
+  const j=await r.json(); if(r.ok){ toast('Favicon uploaded'); loadContent(); } else toast(j.error,true);
+}
+
+// Media portfolio/sales
+async function loadMedia(){
+  const r=await fetch('/api/media?type='+currentMediaType);
+  const data=await r.json();
+  const grid=document.getElementById('mediaGrid');
+  if(!data.length) grid.innerHTML='<div style="color:var(--muted);font-size:13px">No images yet. Upload one above.</div>';
+  else grid.innerHTML=data.map(m=>`
+    <div class="g-item">
+      <img src="${m.url}" alt="">
+      <div class="cap">${m.caption||'No caption'}<br><button class="btn btn-danger" style="margin-top:6px;padding:6px 10px;font-size:11px" onclick="deleteMedia('${m.id}','${currentMediaType}')">Delete</button></div>
+    </div>
+  `).join('');
+}
+async function uploadMedia(){
+  const f=document.getElementById('mediaFile').files[0]; if(!f) return toast('Select image',true);
+  const fd=new FormData(); fd.append('file',f); fd.append('type',currentMediaType); fd.append('caption',document.getElementById('mediaCaption').value);
+  const r=await fetch('/api/media',{method:'POST',headers:{Authorization:'Bearer '+token},body:fd});
+  const j=await r.json(); if(r.ok){ toast('Uploaded'); document.getElementById('mediaCaption').value=''; document.getElementById('mediaFile').value=''; loadMedia(); } else toast(j.error,true);
+}
+async function deleteMedia(id, typeHint){
+  if(!confirm('Delete this image?')) return;
+  await fetch('/api/media/'+id,{method:'DELETE',headers:{Authorization:'Bearer '+token}});
+  if(typeHint) loadMedia(); else { loadWebsite(); loadReviews(); loadExpert(); loadMedia(); }
+}
+
+// Website Images
+async function loadWebsite(){
+  const r=await fetch('/api/media?type=website');
+  const data=await r.json();
+  const grid=document.getElementById('websiteGrid');
+  if(!grid) return;
+  if(!data.length) grid.innerHTML='<div style="color:var(--muted);font-size:13px;grid-column:1/-1">No website images yet. Upload hero mockup or any inline image here.</div>';
+  else grid.innerHTML=data.map(m=>`
+    <div class="g-item">
+      <img src="${m.url}" alt="">
+      <div class="cap"><strong>${m.caption||'No caption'}</strong><div style="font-size:11px;color:var(--muted);word-break:break-all">${m.url}</div>
+      <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+        <button class="btn btn-secondary" style="padding:6px 10px;font-size:11px" onclick="useAsHero('${m.url}')">Use as Hero</button>
+        <button class="btn btn-secondary" style="padding:6px 10px;font-size:11px" onclick="navigator.clipboard.writeText('${m.url}');toast('URL copied')">Copy URL</button>
+        <button class="btn btn-danger" style="padding:6px 10px;font-size:11px" onclick="deleteMedia('${m.id}')">Delete</button>
+      </div></div>
+    </div>
+  `).join('');
+}
+async function uploadWebsite(){
+  const f=document.getElementById('websiteFile').files[0]; if(!f) return toast('Select file',true);
+  const fd=new FormData(); fd.append('file',f); fd.append('type','website'); fd.append('caption',document.getElementById('websiteCaption').value);
+  const r=await fetch('/api/media',{method:'POST',headers:{Authorization:'Bearer '+token},body:fd});
+  const j=await r.json(); if(r.ok){ toast('Uploaded'); document.getElementById('websiteFile').value=''; document.getElementById('websiteCaption').value=''; loadWebsite(); } else toast(j.error,true);
+}
+async function useAsHero(url){
+  document.getElementById('c_hero_image').value=url;
+  // also save immediately to content
+  await fetch('/api/content',{method:'PUT',headers:authHeaders(),body:JSON.stringify({hero_image:url})});
+  toast('Hero image updated — also saved to Content Editor');
+}
+
+// Reviews 4+4
+async function loadReviews(){
+  const [pics, vids] = await Promise.all([
+    fetch('/api/media?type=review_pic').then(r=>r.json()),
+    fetch('/api/media?type=review_video').then(r=>r.json())
+  ]);
+  const picGrid=document.getElementById('reviewPicGrid');
+  const vidGrid=document.getElementById('reviewVideoGrid');
+  document.getElementById('reviewPicCount').textContent=`${pics.length} / 4 picture slots used`;
+  document.getElementById('reviewVideoCount').textContent=`${vids.length} / 4 video slots used`;
+  if(picGrid){
+    if(!pics.length) picGrid.innerHTML='<div style="color:var(--muted);font-size:13px">No picture reviews yet</div>';
+    else picGrid.innerHTML=pics.map(m=>`
+      <div class="slot-card filled">
+        <img src="${m.url}" alt="">
+        <div style="padding:8px 10px;font-size:12px;flex:1">${m.caption||'No caption'}<br><span style="font-size:10px;color:var(--muted)">${m.url.slice(0,40)}</span></div>
+        <div style="padding:0 10px 10px"><button class="btn btn-danger" style="width:100%;justify-content:center;padding:6px" onclick="deleteMedia('${m.id}')">Delete</button></div>
+      </div>
+    `).join('') + (pics.length<4 ? `<div class="slot-card" style="display:grid;place-items:center;color:var(--muted);font-size:12px">${4-pics.length} empty slot(s)</div>`.repeat(1) : '');
+  }
+  if(vidGrid){
+    if(!vids.length) vidGrid.innerHTML='<div style="color:var(--muted);font-size:13px">No video reviews yet — upload mp4 or paste YouTube link</div>';
+    else vidGrid.innerHTML=vids.map(m=>{
+      const isYT=/youtu/.test(m.url);
+      const preview = isYT ? `<div style="height:140px;background:#000;color:#fff;display:grid;place-items:center;font-size:12px">▶ YouTube<br><span style="font-size:10px;word-break:break-all">${m.url.slice(0,50)}</span></div>` : `<video src="${m.url}" style="height:140px" muted></video>`;
+      return `<div class="slot-card filled">${preview}<div style="padding:8px 10px;font-size:12px;flex:1">${m.caption||'No caption'}</div><div style="padding:0 10px 10px"><button class="btn btn-danger" style="width:100%;justify-content:center;padding:6px" onclick="deleteMedia('${m.id}')">Delete</button></div></div>`;
+    }).join('') + (vids.length<4 ? `<div class="slot-card" style="display:grid;place-items:center;color:var(--muted);font-size:12px">${4-vids.length} empty slot(s)</div>`.repeat(1) : '');
+  }
+}
+async function uploadReviewPic(){
+  const f=document.getElementById('reviewPicFile').files[0]; if(!f) return toast('Select image',true);
+  const fd=new FormData(); fd.append('file',f); fd.append('type','review_pic'); fd.append('caption',document.getElementById('reviewPicCaption').value);
+  const r=await fetch('/api/media',{method:'POST',headers:{Authorization:'Bearer '+token},body:fd});
+  const j=await r.json(); if(r.ok){ toast('Picture review added'); document.getElementById('reviewPicFile').value=''; loadReviews(); } else toast(j.error,true);
+}
+async function uploadReviewVideo(){
+  const f=document.getElementById('reviewVideoFile').files[0];
+  const url=document.getElementById('reviewVideoUrl').value.trim();
+  const caption=document.getElementById('reviewVideoCaption').value;
+  const fd=new FormData();
+  if(f) fd.append('file',f);
+  if(url) fd.append('url',url);
+  fd.append('type','review_video');
+  fd.append('caption',caption);
+  if(!f && !url) return toast('Select video file OR paste YouTube link',true);
+  const r=await fetch('/api/media',{method:'POST',headers:{Authorization:'Bearer '+token},body:fd});
+  const j=await r.json(); if(r.ok){ toast('Video review added'); document.getElementById('reviewVideoFile').value=''; document.getElementById('reviewVideoUrl').value=''; loadReviews(); } else toast(j.error,true);
+}
+
+// Expert 2x2
+async function loadExpert(){
+  const r=await fetch('/api/media?type=expert'); const data=await r.json();
+  document.getElementById('expertCount').textContent=`${data.length} / 4 slots used (2×2 grid)`;
+  const grid=document.getElementById('expertGridAdmin');
+  if(!grid) return;
+  if(!data.length) grid.innerHTML='<div style="color:var(--muted);font-size:13px">No expert pictures yet — upload exactly 4 for the 2×2 grid</div>';
+  else grid.innerHTML=data.map(m=>`
+    <div class="slot-card filled">
+      <img src="${m.url}" alt="">
+      <div style="padding:8px 10px;font-size:12px;flex:1">${m.caption||'No caption'}</div>
+      <div style="padding:0 10px 10px"><button class="btn btn-danger" style="width:100%;justify-content:center;padding:6px" onclick="deleteMedia('${m.id}')">Delete</button></div>
+    </div>
+  `).join('') + (data.length<4 ? Array(4-data.length).fill('<div class="slot-card" style="display:grid;place-items:center;color:var(--muted);font-size:12px">Empty slot</div>').join('') : '');
+}
+async function uploadExpert(){
+  const f=document.getElementById('expertFile').files[0]; if(!f) return toast('Select image',true);
+  const fd=new FormData(); fd.append('file',f); fd.append('type','expert'); fd.append('caption',document.getElementById('expertCaption').value);
+  const r=await fetch('/api/media',{method:'POST',headers:{Authorization:'Bearer '+token},body:fd});
+  const j=await r.json(); if(r.ok){ toast('Expert picture added'); document.getElementById('expertFile').value=''; loadExpert(); } else toast(j.error,true);
+}
+
+// Testimonials
+async function loadTestimonials(){
+  const r=await fetch('/api/testimonials'); const data=await r.json();
+  document.getElementById('testiList').innerHTML=data.map(t=>`
+    <div class="card" style="display:flex;justify-content:space-between;align-items:start;gap:12px">
+      <div><div style="font-weight:700">${t.name} <span style="color:var(--muted);font-weight:400">— ${t.role||''}</span></div><div style="font-size:13px;margin-top:4px">${t.quote}</div></div>
+      <button class="btn btn-danger" onclick="deleteTesti('${t.id}')">Delete</button>
+    </div>
+  `).join('');
+}
+async function addTestimonial(){
+  const body={ name:document.getElementById('t_name').value, role:document.getElementById('t_role').value, quote:document.getElementById('t_quote').value, photo:document.getElementById('t_photo').value };
+  if(!body.name||!body.quote) return toast('Name and quote required',true);
+  const r=await fetch('/api/testimonials',{method:'POST',headers:authHeaders(),body:JSON.stringify(body)});
+  if(r.ok){ toast('Added'); loadTestimonials(); } else toast('Failed',true);
+}
+async function deleteTesti(id){ await fetch('/api/testimonials/'+id,{method:'DELETE',headers:{Authorization:'Bearer '+token}}); loadTestimonials(); }
+
+// FAQs
+async function loadFaqs(){
+  const r=await fetch('/api/faqs'); const data=await r.json();
+  document.getElementById('faqListAdmin').innerHTML=data.map(f=>`
+    <div class="card" style="display:flex;justify-content:space-between;gap:12px">
+      <div><div style="font-weight:700">${f.question}</div><div style="font-size:13px;color:var(--muted);margin-top:4px">${f.answer}</div></div>
+      <button class="btn btn-danger" onclick="deleteFaq('${f.id}')">Delete</button>
+    </div>
+  `).join('');
+}
+async function addFaq(){
+  const q=document.getElementById('faq_q').value, a=document.getElementById('faq_a').value;
+  if(!q||!a) return toast('Both fields required',true);
+  await fetch('/api/faqs',{method:'POST',headers:authHeaders(),body:JSON.stringify({question:q,answer:a})});
+  toast('FAQ added'); loadFaqs();
+}
+async function deleteFaq(id){ await fetch('/api/faqs/'+id,{method:'DELETE',headers:{Authorization:'Bearer '+token}}); loadFaqs(); }
+
+// Leads
+async function loadLeads(){
+  const r=await fetch('/api/leads',{headers:{Authorization:'Bearer '+token}});
+  allLeads=await r.json();
+  renderLeads(allLeads);
+}
+function renderLeads(list){
+  document.getElementById('leadsBody').innerHTML=list.map(l=>`
+    <tr>
+      <td><strong>${l.name}</strong><br><span style="color:var(--muted);font-size:11px">${l.storeName}</span></td>
+      <td>${l.budget}</td>
+      <td>${l.storeStatus}</td>
+      <td>${l.wasScammed==='yes'?'⚠️ Yes':'No'}${l.scamDetails?`<br><span style="font-size:11px;color:var(--muted)">${l.scamDetails.slice(0,60)}</span>`:''}</td>
+      <td><a href="https://wa.me/${l.whatsapp.replace(/\D/g,'')}" target="_blank">${l.whatsapp}</a></td>
+      <td>${l.email}</td>
+      <td>${l.source||'-'}</td>
+      <td>${new Date(l.submittedAt).toLocaleDateString()}</td>
+      <td><span class="badge badge-${l.status}">${l.status}</span></td>
+      <td><select onchange="updateLeadStatus('${l.id}',this.value)" class="input" style="padding:4px 6px;font-size:11px"><option value="new" ${l.status==='new'?'selected':''}>New</option><option value="contacted" ${l.status==='contacted'?'selected':''}>Contacted</option><option value="booked" ${l.status==='booked'?'selected':''}>Booked</option><option value="closed" ${l.status==='closed'?'selected':''}>Closed</option></select></td>
+    </tr>
+  `).join('') || '<tr><td colspan="11" style="text-align:center;color:var(--muted)">No leads yet</td></tr>';
+}
+function filterLeads(){
+  const q=document.getElementById('leadSearch').value.toLowerCase();
+  const s=document.getElementById('leadStatusFilter').value;
+  let filtered=allLeads.filter(l=>{
+    const matchQ = !q || `${l.name} ${l.email} ${l.whatsapp} ${l.storeName}`.toLowerCase().includes(q);
+    const matchS = !s || l.status===s;
+    return matchQ && matchS;
+  });
+  renderLeads(filtered);
+}
+async function updateLeadStatus(id,status){
+  await fetch('/api/leads/'+id+'/status',{method:'PUT',headers:authHeaders(),body:JSON.stringify({status})});
+  toast('Status updated'); loadLeads();
+}
+function exportLeads(){
+  fetch('/api/leads/export',{headers:{Authorization:'Bearer '+token}}).then(r=>r.blob()).then(b=>{
+    const url=URL.createObjectURL(b); const a=document.createElement('a'); a.href=url; a.download='waywealth_leads.csv'; a.click();
+  });
+}
+
+// Analytics
+async function loadAnalytics(){
+  const range=document.getElementById('rangeSel').value;
+  const r=await fetch('/api/analytics?range='+range,{headers:{Authorization:'Bearer '+token}});
+  const d=await r.json();
+  document.getElementById('statCards').innerHTML=`
+    <div class="card stat"><div class="stat-val">${d.totalViews}</div><div class="stat-lbl">Page Views</div></div>
+    <div class="card stat"><div class="stat-val">${d.uniqueVisitors}</div><div class="stat-lbl">Unique Visitors</div></div>
+    <div class="card stat"><div class="stat-val">${d.leadsCount}</div><div class="stat-lbl">Leads (${range})</div></div>
+    <div class="card stat"><div class="stat-val">${d.formStarts? Math.round(d.formSubmits/d.formStarts*100)||0 :0}%</div><div class="stat-lbl">Form Completion</div></div>
+  `;
+  renderBar('viewsChart','viewsLabels',d.dailyViews);
+  renderBar('leadsChart','leadsLabels',d.leadsDaily);
+  document.getElementById('ctaBreakdown').innerHTML = d.ctaClicks.length? d.ctaClicks.map(c=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px"><span>${c.element_id}</span><strong>${c.c}</strong></div>`).join('') : '<span style="color:var(--muted);font-size:13px">No clicks yet</span>';
+  const rate = d.formStarts? `${d.formSubmits} / ${d.formStarts} completed` : 'No data';
+  document.getElementById('funnelBox').innerHTML=`<div style="font-size:13px">Form starts: <strong>${d.formStarts}</strong></div><div style="font-size:13px">Form submits: <strong>${d.formSubmits}</strong></div><div style="font-size:13px;margin-top:6px;color:var(--muted)">${rate}</div>`;
+  document.getElementById('sourceBox').innerHTML = d.trafficSource.length? d.trafficSource.map(s=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid var(--border);font-size:13px"><span>${s.label||'Unknown'}</span><strong>${s.c}</strong></div>`).join('') : '<span style="color:var(--muted);font-size:13px">No source data</span>';
+}
+function renderBar(chartId,labelId,data){
+  const chart=document.getElementById(chartId), labels=document.getElementById(labelId);
+  if(!data.length){ chart.innerHTML='<span style="color:var(--muted);font-size:12px">No data</span>'; labels.innerHTML=''; return; }
+  const max=Math.max(...data.map(d=>d.c),1);
+  chart.innerHTML=data.map(d=>`<div class="bar" style="height:${Math.max(8, d.c/max*100)}% " title="${d.date}: ${d.c}"></div>`).join('');
+  labels.innerHTML=data.map(d=>`<span style="flex:1;text-align:center">${d.date.slice(5)}</span>`).join('');
+}
+async function changePass(){
+  const cur=document.getElementById('curPass').value, nw=document.getElementById('newPass').value;
+  const r=await fetch('/api/auth/change-password',{method:'POST',headers:authHeaders(),body:JSON.stringify({currentPassword:cur,newPassword:nw})});
+  const j=await r.json(); if(r.ok) toast('Password updated'); else toast(j.error,true);
+}
+
+checkAuth();
+</script>
+</body>
+</html>
