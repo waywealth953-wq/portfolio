@@ -368,6 +368,33 @@ app.put('/api/media/reorder', authMiddleware, async (req, res) => {
     res.json({ ok: true });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
+app.put('/api/media/:id', authMiddleware, uploadAny.single('file'), async (req, res) => {
+  try {
+    const existing = await dbGet("SELECT * FROM media WHERE id=?", [req.params.id]);
+    if (!existing) return res.status(404).json({ error: 'Not found' });
+    let url = existing.url;
+    let caption = req.body.caption !== undefined ? req.body.caption : existing.caption;
+    if (req.file) {
+      // delete old file if it was local
+      if (existing.url && existing.url.startsWith('/uploads/')) {
+        const fp = path.join(__dirname, 'public', existing.url);
+        if (fs.existsSync(fp)) try{ fs.unlinkSync(fp); }catch{}
+      }
+      url = '/uploads/' + req.file.filename;
+    } else if (req.body.url && req.body.url.trim()) {
+      let newUrl = req.body.url.trim();
+      if (!/^https?:\/\//.test(newUrl) && !newUrl.startsWith('/')) return res.status(400).json({ error: 'Invalid URL' });
+      // if replacing external URL, keep old local file cleanup
+      if (existing.url && existing.url.startsWith('/uploads/') && newUrl.startsWith('http')) {
+        const fp = path.join(__dirname, 'public', existing.url);
+        if (fs.existsSync(fp)) try{ fs.unlinkSync(fp); }catch{}
+      }
+      url = newUrl;
+    }
+    await dbRun("UPDATE media SET url=?, caption=? WHERE id=?", [url, caption, req.params.id]);
+    res.json({ id: req.params.id, url, caption, type: existing.type });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
 
 // Testimonials
 app.get('/api/testimonials', async (req, res) => {

@@ -78,6 +78,10 @@ td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
 .url-row .input{flex:1;min-width:160px}
 .dropzone{border:2px dashed var(--border);border-radius:12px;padding:18px;text-align:center;background:#f8fafc;cursor:pointer;transition:.15s}
 .dropzone.dragover{background:#f0fdf4;border-color:var(--accent)}
+.modal{position:fixed;inset:0;background:rgba(15,23,42,0.6);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:90;padding:20px}
+.modal-box{background:#fff;border-radius:16px;max-width:520px;width:100%;padding:22px;border:1px solid var(--border);box-shadow:0 20px 60px rgba(0,0,0,0.2);max-height:90vh;overflow:auto}
+.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px}
+.modal-preview{width:100%;max-height:220px;object-fit:contain;border-radius:10px;border:1px solid var(--border);background:#f8fafc}
 </style>
 </head>
 <body>
@@ -412,6 +416,23 @@ td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
 </div>
 
 <div class="toast" id="toast"></div>
+<!-- Edit Modal -->
+<div id="editModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head"><h3 style="font-weight:800">✏️ Edit Image</h3><button class="btn btn-secondary" style="padding:6px 10px" onclick="closeEditModal()">✕</button></div>
+    <div id="editPreviewWrap" style="margin-bottom:12px"></div>
+    <label style="font-size:12px;font-weight:600">Caption</label><input class="input" id="editCaption" placeholder="Caption">
+    <label style="font-size:12px;font-weight:600;margin-top:10px;display:block">Replace Image — Upload new file (instant, with progress)</label>
+    <input type="file" id="editFile" accept="image/*,video/*" class="input" style="margin-top:6px" onchange="previewEditFile(this)">
+    <div id="editFilePreview" style="margin-top:8px"></div>
+    <label style="font-size:12px;font-weight:600;margin-top:10px;display:block">Or Replace via URL</label><input id="editUrl" placeholder="https://... or /uploads/..." class="input" style="margin-top:6px">
+    <div class="progress" id="editProgress" style="margin-top:10px"><div class="progress-bar" id="editProgressBar"></div></div>
+    <div style="display:flex;gap:8px;margin-top:16px">
+      <button class="btn btn-primary" style="flex:1;justify-content:center" onclick="saveEdit()">💾 Save Changes</button>
+      <button class="btn btn-secondary" style="flex:1;justify-content:center" onclick="closeEditModal()">Cancel</button>
+    </div>
+  </div>
+</div>
 
 <script>
 let token = localStorage.getItem('ww_token');
@@ -719,7 +740,7 @@ async function loadMedia(type){
   else grid.innerHTML=data.map(m=>`
     <div class="g-item">
       <img src="${esc(m.url)}" alt="" onerror="this.src='https://via.placeholder.com/400x220?text=Image'">
-      <div class="cap">${esc(m.caption||'No caption')}<div style="font-size:11px;color:var(--muted);word-break:break-all">${esc(m.url.slice(0,50))}</div><button class="btn btn-danger" style="margin-top:6px;padding:6px 10px;font-size:11px" onclick="deleteMedia('${m.id}','${type}')">Delete</button> <button class="btn btn-secondary" style="padding:6px 10px;font-size:11px" onclick="navigator.clipboard.writeText('${esc(m.url)}');toast('URL copied')">Copy URL</button></div>
+      <div class="cap">${esc(m.caption||'No caption')}<div style="font-size:11px;color:var(--muted);word-break:break-all">${esc(m.url.slice(0,50))}</div><div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap"><button class="btn btn-secondary" style="padding:6px 10px;font-size:11px" onclick="openEditModal('${m.id}','${esc(m.url)}','${esc((m.caption||'').replace(/'/g,"\\'"))}','${type}')">✏️ Edit</button><button class="btn btn-secondary" style="padding:6px 10px;font-size:11px" onclick="navigator.clipboard.writeText('${esc(m.url)}');toast('URL copied')">Copy</button><button class="btn btn-danger" style="padding:6px 10px;font-size:11px" onclick="deleteMedia('${m.id}','${type}')">Delete</button></div></div>
     </div>
   `).join('');
 }
@@ -741,8 +762,9 @@ async function loadWebsite(){
       <img src="${esc(m.url)}" alt="">
       <div class="cap"><strong>${esc(m.caption||'No caption')}</strong><div style="font-size:11px;color:var(--muted);word-break:break-all">${esc(m.url)}</div>
       <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+        <button class="btn btn-secondary" style="padding:6px 10px;font-size:11px" onclick="openEditModal('${m.id}','${esc(m.url)}','${esc((m.caption||'').replace(/'/g,"\\'"))}','website')">✏️ Edit</button>
         <button class="btn btn-secondary" style="padding:6px 10px;font-size:11px" onclick="useAsHero('${m.url}')">Use as Hero</button>
-        <button class="btn btn-secondary" style="padding:6px 10px;font-size:11px" onclick="navigator.clipboard.writeText('${esc(m.url)}');toast('URL copied')">Copy URL</button>
+        <button class="btn btn-secondary" style="padding:6px 10px;font-size:11px" onclick="navigator.clipboard.writeText('${esc(m.url)}');toast('URL copied')">Copy</button>
         <button class="btn btn-danger" style="padding:6px 10px;font-size:11px" onclick="deleteMedia('${m.id}')">Delete</button>
       </div></div>
     </div>
@@ -770,7 +792,7 @@ async function loadReviews(){
       <div class="slot-card filled">
         <img src="${esc(m.url)}" alt="">
         <div style="padding:8px 10px;font-size:12px;flex:1">${esc(m.caption||'No caption')}<br><span style="font-size:10px;color:var(--muted)">${esc(m.url.slice(0,40))}</span></div>
-        <div style="padding:0 10px 10px;display:flex;gap:6px"><button class="btn btn-secondary" style="flex:1;justify-content:center;padding:6px" onclick="navigator.clipboard.writeText('${esc(m.url)}');toast('Copied')">Copy</button><button class="btn btn-danger" style="flex:1;justify-content:center;padding:6px" onclick="deleteMedia('${m.id}')">Delete</button></div>
+        <div style="padding:0 10px 10px;display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-secondary" style="flex:1;justify-content:center;padding:6px" onclick="openEditModal('${m.id}','${esc(m.url)}','${esc((m.caption||'').replace(/'/g,"\\'"))}','review_pic')">✏️ Edit</button><button class="btn btn-secondary" style="flex:1;justify-content:center;padding:6px" onclick="navigator.clipboard.writeText('${esc(m.url)}');toast('Copied')">Copy</button><button class="btn btn-danger" style="flex:1;justify-content:center;padding:6px" onclick="deleteMedia('${m.id}')">Delete</button></div>
       </div>
     `).join('') + (pics.length<4 ? `<div class="slot-card" style="display:grid;place-items:center;color:var(--muted);font-size:12px">${4-pics.length} empty slot(s)</div>`.repeat(1) : '');
   }
@@ -779,7 +801,7 @@ async function loadReviews(){
     else vidGrid.innerHTML=vids.map(m=>{
       const isYT=/youtu/.test(m.url);
       const preview = isYT ? `<div style="height:140px;background:#000;color:#fff;display:grid;place-items:center;font-size:12px">▶ YouTube<br><span style="font-size:10px;word-break:break-all">${esc(m.url.slice(0,50))}</span></div>` : `<video src="${esc(m.url)}" style="height:140px" muted></video>`;
-      return `<div class="slot-card filled">${preview}<div style="padding:8px 10px;font-size:12px;flex:1">${esc(m.caption||'No caption')}</div><div style="padding:0 10px 10px;display:flex;gap:6px"><button class="btn btn-secondary" style="flex:1;justify-content:center;padding:6px" onclick="navigator.clipboard.writeText('${esc(m.url)}');toast('Copied')">Copy</button><button class="btn btn-danger" style="flex:1;justify-content:center;padding:6px" onclick="deleteMedia('${m.id}')">Delete</button></div></div>`;
+      return `<div class="slot-card filled">${preview}<div style="padding:8px 10px;font-size:12px;flex:1">${esc(m.caption||'No caption')}</div><div style="padding:0 10px 10px;display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-secondary" style="flex:1;justify-content:center;padding:6px" onclick="openEditModal('${m.id}','${esc(m.url)}','${esc((m.caption||'').replace(/'/g,"\\'"))}','review_video')">✏️ Edit</button><button class="btn btn-secondary" style="flex:1;justify-content:center;padding:6px" onclick="navigator.clipboard.writeText('${esc(m.url)}');toast('Copied')">Copy</button><button class="btn btn-danger" style="flex:1;justify-content:center;padding:6px" onclick="deleteMedia('${m.id}')">Delete</button></div></div>`;
     }).join('') + (vids.length<4 ? `<div class="slot-card" style="display:grid;place-items:center;color:var(--muted);font-size:12px">${4-vids.length} empty slot(s)</div>`.repeat(1) : '');
   }
 }
@@ -793,10 +815,52 @@ async function loadExpert(){
     <div class="slot-card filled">
       <img src="${esc(m.url)}" alt="">
       <div style="padding:8px 10px;font-size:12px;flex:1">${esc(m.caption||'No caption')}</div>
-      <div style="padding:0 10px 10px;display:flex;gap:6px"><button class="btn btn-secondary" style="flex:1;justify-content:center;padding:6px" onclick="navigator.clipboard.writeText('${esc(m.url)}');toast('Copied')">Copy</button><button class="btn btn-danger" style="flex:1;justify-content:center;padding:6px" onclick="deleteMedia('${m.id}')">Delete</button></div>
+      <div style="padding:0 10px 10px;display:flex;gap:6px;flex-wrap:wrap"><button class="btn btn-secondary" style="flex:1;justify-content:center;padding:6px" onclick="openEditModal('${m.id}','${esc(m.url)}','${esc((m.caption||'').replace(/'/g,"\\'"))}','expert')">✏️ Edit</button><button class="btn btn-secondary" style="flex:1;justify-content:center;padding:6px" onclick="navigator.clipboard.writeText('${esc(m.url)}');toast('Copied')">Copy</button><button class="btn btn-danger" style="flex:1;justify-content:center;padding:6px" onclick="deleteMedia('${m.id}')">Delete</button></div>
     </div>
   `).join('') + (data.length<4 ? Array(4-data.length).fill('<div class="slot-card" style="display:grid;place-items:center;color:var(--muted);font-size:12px">Empty slot</div>').join('') : '');
 }
+let editId=null, editType=null;
+function openEditModal(id, url, caption, type){
+  editId=id; editType=type;
+  document.getElementById('editCaption').value=caption||'';
+  document.getElementById('editUrl').value= url.startsWith('http') ? url : '';
+  document.getElementById('editFile').value='';
+  document.getElementById('editFilePreview').innerHTML='';
+  const isYT=/youtu/.test(url);
+  const preview = isYT ? `<div style="height:180px;background:#000;color:#fff;display:grid;place-items:center;font-size:13px;border-radius:10px">▶ YouTube<br><span style="font-size:11px;word-break:break-all">${esc(url.slice(0,60))}</span></div>` : (url.match(/\.(mp4|webm|mov)(\?|$)/i) ? `<video src="${esc(url)}" class="modal-preview" controls></video>` : `<img src="${esc(url)}" class="modal-preview" onerror="this.src='https://via.placeholder.com/400x220?text=Image'">`);
+  document.getElementById('editPreviewWrap').innerHTML=preview + `<div style="font-size:11px;color:var(--muted);margin-top:6px;word-break:break-all">Current: ${esc(url)}</div>`;
+  document.getElementById('editModal').classList.remove('hidden');
+}
+function closeEditModal(){ document.getElementById('editModal').classList.add('hidden'); editId=null; editType=null; }
+function previewEditFile(input){
+  const f=input.files[0]; if(!f) return;
+  const url=URL.createObjectURL(f);
+  document.getElementById('editFilePreview').innerHTML= f.type.startsWith('video/') ? `<video src="${url}" style="max-height:160px;border-radius:10px" muted autoplay loop></video><div style="font-size:12px;color:var(--muted)">${esc(f.name)}</div>` : `<img src="${url}" style="max-height:160px;border-radius:10px;border:1px solid var(--border)"><div style="font-size:12px;color:var(--muted)">${esc(f.name)}</div>`;
+}
+async function saveEdit(){
+  if(!editId) return;
+  const caption=document.getElementById('editCaption').value;
+  const file=document.getElementById('editFile').files[0];
+  const url=document.getElementById('editUrl').value.trim();
+  const fd=new FormData();
+  fd.append('caption',caption);
+  if(file) fd.append('file',file);
+  else if(url) fd.append('url',url);
+  // if neither file nor url, just update caption via same endpoint (url stays same)
+  try{
+    await uploadWithProgress('/api/media/'+editId, fd, 'editProgress','editProgressBar');
+    toast('Edited instantly');
+    closeEditModal();
+    // refresh correct grid
+    if(editType==='portfolio' || editType==='sales') loadMedia(editType);
+    else if(editType==='website') loadWebsite();
+    else if(editType==='review_pic' || editType==='review_video') loadReviews();
+    else if(editType==='expert') loadExpert();
+    else { loadMedia('portfolio'); loadMedia('sales'); loadWebsite(); loadReviews(); loadExpert(); }
+  }catch(e){ toast(e.error||'Edit failed',true); }
+}
+document.getElementById('editModal').addEventListener('click', (e)=>{ if(e.target.id==='editModal') closeEditModal(); });
+
 async function loadTestimonials(){
   const r=await fetch('/api/testimonials'); const data=await r.json();
   document.getElementById('testiList').innerHTML=data.map(t=>`
