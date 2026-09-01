@@ -257,14 +257,44 @@ td{padding:10px 12px;border-bottom:1px solid var(--border);vertical-align:top}
       </div>
     </div>
 
-    <!-- PRICING -->
+    <!-- PRICING — FULLY EDITABLE PLAN SECTION -->
     <div id="tab-pricing" class="hidden">
       <div class="card section-card" style="border-left-color:#f59e0b">
-        <div class="sec-head"><div><div class="sec-title">💳 Pricing</div><div class="sec-sub">3 plans — Starter / Growth / Empire (editable)</div></div><button class="btn btn-primary" onclick="savePricing()">Save Pricing</button></div>
-        <label style="font-size:12px;font-weight:600">Pricing Title</label><input class="input" id="c_pricing_title">
+        <div class="sec-head"><div><div class="sec-title">💳 Plan Section — Fully Editable</div><div class="sec-sub">Edit every card: name, price, description, features (one per line), button & badge</div></div><button class="btn btn-primary" onclick="savePricing()">💾 Save All Plans</button></div>
+        <label style="font-size:12px;font-weight:600">Section Title</label><input class="input" id="c_pricing_title">
         <label style="font-size:12px;font-weight:600">Subtitle</label><input class="input" id="c_pricing_subtitle" style="margin-top:8px">
         <label style="font-size:12px;display:flex;gap:6px;align-items:center;margin-top:10px"><input type="checkbox" id="c_pricing_show"> Show pricing section on frontend</label>
-        <p style="font-size:11px;color:var(--muted);margin-top:8px">Note: Card details (Starter/Growth/Empire) are in <code>public/index.html</code> pricing-grid — edit file for full card customization or ask to make them fully CMS-driven.</p>
+        <div class="grid2" style="margin-top:16px">
+          <!-- Card 1 -->
+          <div class="card" style="background:#f8fafc">
+            <h4 style="font-weight:800">📌 Card 1 — Starter</h4>
+            <label style="font-size:12px;font-weight:600;margin-top:8px;display:block">Plan Name</label><input class="input" id="c_pricing_card1_name">
+            <div class="grid2" style="margin-top:8px"><div><label style="font-size:12px;font-weight:600">Price (e.g. ₦80k)</label><input class="input" id="c_pricing_card1_price"></div><div><label style="font-size:12px;font-weight:600">Suffix (e.g. one-time)</label><input class="input" id="c_pricing_card1_suffix"></div></div>
+            <label style="font-size:12px;font-weight:600;margin-top:8px;display:block">Description</label><input class="input" id="c_pricing_card1_desc">
+            <label style="font-size:12px;font-weight:600;margin-top:8px;display:block">Features — one per line</label><textarea id="c_pricing_card1_features" rows="5" class="input" placeholder="Premium Shopify store&#10;5 winning products"></textarea>
+            <label style="font-size:12px;font-weight:600;margin-top:8px;display:block">Button Text</label><input class="input" id="c_pricing_card1_btn">
+            <label style="font-size:12px;font-weight:600;margin-top:8px;display:block">Badge (empty = no badge)</label><input class="input" id="c_pricing_card1_badge" placeholder="e.g. POPULAR">
+          </div>
+          <!-- Card 2 -->
+          <div class="card" style="background:#f0fdf4;border-color:#bbf7d0">
+            <h4 style="font-weight:800">⭐ Card 2 — Growth (Featured)</h4>
+            <label style="font-size:12px;font-weight:600;margin-top:8px;display:block">Plan Name</label><input class="input" id="c_pricing_card2_name">
+            <div class="grid2" style="margin-top:8px"><div><label style="font-size:12px;font-weight:600">Price</label><input class="input" id="c_pricing_card2_price"></div><div><label style="font-size:12px;font-weight:600">Suffix</label><input class="input" id="c_pricing_card2_suffix"></div></div>
+            <label style="font-size:12px;font-weight:600;margin-top:8px;display:block">Description</label><input class="input" id="c_pricing_card2_desc">
+            <label style="font-size:12px;font-weight:600;margin-top:8px;display:block">Features — one per line</label><textarea id="c_pricing_card2_features" rows="5" class="input"></textarea>
+            <label style="font-size:12px;font-weight:600;margin-top:8px;display:block">Button Text</label><input class="input" id="c_pricing_card2_btn">
+            <label style="font-size:12px;font-weight:600;margin-top:8px;display:block">Badge</label><input class="input" id="c_pricing_card2_badge" placeholder="MOST POPULAR">
+          </div>
+        </div>
+        <div class="card" style="background:#fff7ed;margin-top:12px">
+          <h4 style="font-weight:800">🚀 Card 3 — Empire</h4>
+          <div class="grid2">
+            <div><label style="font-size:12px;font-weight:600">Plan Name</label><input class="input" id="c_pricing_card3_name"><label style="font-size:12px;font-weight:600">Price</label><input class="input" id="c_pricing_card3_price" style="margin-top:8px"><label style="font-size:12px;font-weight:600">Suffix</label><input class="input" id="c_pricing_card3_suffix" style="margin-top:8px"></div>
+            <div><label style="font-size:12px;font-weight:600">Description</label><input class="input" id="c_pricing_card3_desc"><label style="font-size:12px;font-weight:600">Features — one per line</label><textarea id="c_pricing_card3_features" rows="5" class="input" style="margin-top:8px"></textarea></div>
+          </div>
+          <div class="grid2" style="margin-top:8px"><div><label style="font-size:12px;font-weight:600">Button Text</label><input class="input" id="c_pricing_card3_btn"></div><div><label style="font-size:12px;font-weight:600">Badge</label><input class="input" id="c_pricing_card3_badge"></div></div>
+        </div>
+        <p style="font-size:11px;color:var(--muted);margin-top:10px">Tip: Features are one per line. Save, then view live site — changes appear instantly via <code>/api/content</code>.</p>
       </div>
     </div>
 
@@ -570,7 +600,7 @@ async function saveContent(){
     'hero_badge','hero_headline','hero_subheadline','hero_image','hero_cta_primary','hero_cta_secondary',
     'proof_stat_1_value','proof_stat_1_label','proof_stat_2_value','proof_stat_2_label','proof_stat_3_value','proof_stat_3_label','proof_stat_4_value','proof_stat_4_label',
     'hiw_title','hiw_subtitle','hiw_step1_title','hiw_step1_desc','hiw_step2_title','hiw_step2_desc','hiw_step3_title','hiw_step3_desc','hiw_step4_title','hiw_step4_desc',
-    'pricing_title','pricing_subtitle','testimonials_title','testimonials_subtitle','expert_title','expert_subtitle','faq_title','faq_subtitle','cta_title','cta_subtitle',
+    'pricing_title','pricing_subtitle','pricing_card1_name','pricing_card1_price','pricing_card1_suffix','pricing_card1_desc','pricing_card1_features','pricing_card1_btn','pricing_card1_badge','pricing_card2_name','pricing_card2_price','pricing_card2_suffix','pricing_card2_desc','pricing_card2_features','pricing_card2_btn','pricing_card2_badge','pricing_card3_name','pricing_card3_price','pricing_card3_suffix','pricing_card3_desc','pricing_card3_features','pricing_card3_btn','pricing_card3_badge','testimonials_title','testimonials_subtitle','expert_title','expert_subtitle','faq_title','faq_subtitle','cta_title','cta_subtitle',
     'banner_text','footer_text','footer_email','footer_address'
   ];
   const payload={};
@@ -588,7 +618,7 @@ async function saveBrand(){ await saveFields(['site_name','font_family','color_p
 async function saveHero(){ await saveFields(['hero_badge','hero_headline','hero_subheadline','hero_image','hero_cta_primary','hero_cta_secondary']); if(contentData.hero_image!==document.getElementById('c_hero_image').value) document.getElementById('heroPreview').innerHTML=`<img src="${document.getElementById('c_hero_image').value}" style="max-height:180px;border-radius:12px">`; }
 async function saveStats(){ await saveFields(['proof_stat_1_value','proof_stat_1_label','proof_stat_2_value','proof_stat_2_label','proof_stat_3_value','proof_stat_3_label','proof_stat_4_value','proof_stat_4_label']); }
 async function saveHiw(){ await saveFields(['hiw_title','hiw_subtitle','hiw_step1_title','hiw_step1_desc','hiw_step2_title','hiw_step2_desc','hiw_step3_title','hiw_step3_desc','hiw_step4_title','hiw_step4_desc']); }
-async function savePricing(){ await saveFields(['pricing_title','pricing_subtitle','pricing_show']); }
+async function savePricing(){ await saveFields(['pricing_title','pricing_subtitle','pricing_show','pricing_card1_name','pricing_card1_price','pricing_card1_suffix','pricing_card1_desc','pricing_card1_features','pricing_card1_btn','pricing_card1_badge','pricing_card2_name','pricing_card2_price','pricing_card2_suffix','pricing_card2_desc','pricing_card2_features','pricing_card2_btn','pricing_card2_badge','pricing_card3_name','pricing_card3_price','pricing_card3_suffix','pricing_card3_desc','pricing_card3_features','pricing_card3_btn','pricing_card3_badge']); }
 async function saveReviewsMeta(){ await saveFields(['testimonials_title','testimonials_subtitle']); }
 async function saveExpertMeta(){ await saveFields(['expert_title','expert_subtitle']); }
 async function saveFaqMeta(){ await saveFields(['faq_title','faq_subtitle']); }

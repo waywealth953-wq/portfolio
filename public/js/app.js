@@ -39,6 +39,30 @@ function applyContent(){
   set('hiw3t', g('hiw_step3_title','')); set('hiw3d', g('hiw_step3_desc',''));
   set('hiw4t', g('hiw_step4_title','')); set('hiw4d', g('hiw_step4_desc',''));
   set('pricingTitle', g('pricing_title','')); set('pricingSub', g('pricing_subtitle',''));
+  // Pricing cards fully editable
+  const setCard=(n)=>{
+    const name=g(`pricing_card${n}_name`,'');
+    const price=g(`pricing_card${n}_price`,'');
+    const suffix=g(`pricing_card${n}_suffix`,'');
+    const desc=g(`pricing_card${n}_desc`,'');
+    const btn=g(`pricing_card${n}_btn`,'');
+    const badge=g(`pricing_card${n}_badge`,'');
+    const features=g(`pricing_card${n}_features`,'');
+    if(name) set(`priceCard${n}Name`, name);
+    if(price){
+      const el=document.getElementById(`priceCard${n}Price`);
+      if(el){ el.childNodes[0].textContent=price+' '; const s=document.getElementById(`priceCard${n}Suffix`); if(s) s.textContent=suffix; }
+    } else if(suffix) { const s=document.getElementById(`priceCard${n}Suffix`); if(s) s.textContent=suffix; }
+    if(desc) set(`priceCard${n}Desc`, desc);
+    if(btn) set(`priceCard${n}Btn`, btn);
+    const badgeEl=document.getElementById(`priceCard${n}Badge`);
+    if(badgeEl){ if(badge){ badgeEl.textContent=badge; badgeEl.style.display=''; } else { badgeEl.style.display='none'; } }
+    if(features){
+      const ul=document.getElementById(`priceCard${n}Features`);
+      if(ul){ const items=features.split('\n').filter(Boolean); ul.innerHTML=items.map(f=>`<li>${esc(f)}</li>`).join(''); }
+    }
+  };
+  setCard(1); setCard(2); setCard(3);
   set('testiTitle', g('testimonials_title','')); set('testiSub', g('testimonials_subtitle',''));
   set('expertTitle', g('expert_title','')); set('expertSub', g('expert_subtitle',''));
   set('faqTitle', g('faq_title','')); set('faqSub', g('faq_subtitle',''));
