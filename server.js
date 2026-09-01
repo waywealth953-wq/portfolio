@@ -14,7 +14,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'waywealth-secret-change-me-2024';
 const ADMIN_DEFAULT_USER = 'admin';
-const ADMIN_DEFAULT_PASS = 'WayWealth2024!';
+const ADMIN_DEFAULT_PASS = process.env.ADMIN_PASSWORD || 'WayWealth2024!';
 
 // Middleware
 app.set('trust proxy', 1);
@@ -98,12 +98,17 @@ function initDB() {
       sort_order INTEGER DEFAULT 0
     )`);
 
-    // Seed admin
+    // Seed admin + env override (allows Render env to reset password)
     db.get("SELECT id FROM admin_users WHERE username=?", [ADMIN_DEFAULT_USER], (err, row) => {
       if (!row) {
         const hash = bcrypt.hashSync(ADMIN_DEFAULT_PASS, 10);
         db.run("INSERT INTO admin_users (id,username,password_hash) VALUES (?,?,?)", [uuidv4(), ADMIN_DEFAULT_USER, hash]);
-        console.log(`Default admin created: ${ADMIN_DEFAULT_USER} / ${ADMIN_DEFAULT_PASS}`);
+        console.log(`Default admin created: ${ADMIN_DEFAULT_USER}`);
+      } else if (process.env.ADMIN_PASSWORD) {
+        const hash = bcrypt.hashSync(process.env.ADMIN_PASSWORD, 10);
+        db.run("UPDATE admin_users SET password_hash=? WHERE username=?", [hash, ADMIN_DEFAULT_USER], () => {
+          console.log(`Admin password reset via ADMIN_PASSWORD env for ${ADMIN_DEFAULT_USER}`);
+        });
       }
     });
 
