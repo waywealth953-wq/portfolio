@@ -1,0 +1,248 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WAYWEALTH — The E-Commerce Venture Studio</title>
+<meta name="description" content="We don't just build stores — we engineer high-converting storefronts backed by real, current sales proof.">
+<meta property="og:title" content="WAYWEALTH — The E-Commerce Venture Studio">
+<meta property="og:description" content="Done-for-you, high-trust storefronts. Full ownership. 30-day scaling roadmap.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="/uploads/og-image.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="WAYWEALTH — The E-Commerce Venture Studio">
+<link rel="canonical" href="http://localhost:3000/">
+<link rel="preconnect" href="https://images.unsplash.com">
+<link id="siteFavicon" rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='20' fill='%230F9D58'/><text x='50' y='62' text-anchor='middle' font-size='44' font-weight='900' fill='white'>W</text></svg>">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<header class="header" id="header">
+  <div class="container header-inner">
+    <a href="#" class="logo" id="siteLogoWrap"><img id="siteLogo" src="" alt="WAYWEALTH" style="height:32px;display:none;vertical-align:middle"><span id="siteLogoText">WAY<span>WEALTH</span></span></a>
+    <nav class="nav" id="nav">
+      <a href="#portfolio" id="navShowcase" data-track="nav_showcase">Showcase</a>
+      <a href="#proof" id="navProof" data-track="nav_proof">Proof</a>
+      <a href="#process" id="navProcess" data-track="nav_process">Process</a>
+      <a href="#certificates" id="navCertificates" data-track="nav_certificates">Awards</a>
+      <a href="#pricing" id="navPricing" data-track="nav_pricing">Pricing</a>
+      <a href="#faq" id="navFaq" data-track="nav_faq">FAQ</a>
+    </nav>
+    <div class="header-ctas">
+      <a id="waNav" href="#" class="btn btn-ghost btn-sm" data-track="whatsapp_nav">WhatsApp Us</a>
+      <a href="#apply" id="headerBookBtn" class="btn btn-primary btn-sm" data-track="booking_header">Book / Apply</a>
+      <button class="mobile-toggle" id="mobileToggle" aria-label="Open menu">☰</button>
+    </div>
+  </div>
+</header>
+
+<!-- Hero -->
+<section class="hero" id="heroSec">
+  <div class="container hero-grid">
+    <div class="reveal">
+      <div class="badge" id="heroBadge"><span class="badge-dot"></span> <span id="badgeText">● Only 7 launch slots left this month</span></div>
+      <h1 id="heroHeadline">We Build Stores That <em>Actually</em> Sell.</h1>
+      <p class="hero-sub" id="heroSub">The done-for-you E-Commerce Venture Studio for founders who want a high-trust, high-converting storefront — researched, built, and handed over with a 30-day scaling roadmap.</p>
+      <div class="hero-ctas">
+        <a href="#apply" class="btn btn-primary" data-track="whatsapp_hero">Apply for Your Store Launch →</a>
+        <a id="waHero" href="#" class="btn btn-ghost" data-track="whatsapp_hero2">WhatsApp Us</a>
+      </div>
+      <div class="hero-trust">
+        <div class="avatars">
+          <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&q=60" alt="">
+          <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100&q=60" alt="">
+          <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&q=60" alt="">
+        </div>
+        <span id="heroTrustLine">Trusted by 180+ founders • 4.9/5 average</span>
+      </div>
+    </div>
+    <div class="mockup reveal">
+      <div class="mockup-top"><span id="mockupLive">● Store Dashboard — Live</span><span id="mockupCurrency">$ / USD</span></div>
+      <div class="mockup-stats">
+        <div class="stat-card"><span id="mockupRevLabel">Today's Revenue</span><strong id="tickRevenue">$847,320</strong></div>
+        <div class="stat-card"><span id="mockupOrdersLabel">Orders</span><strong id="tickOrders">127</strong></div>
+      </div>
+      <div class="chart-bars" aria-hidden="true">
+        <i style="height:32%"></i><i style="height:58%"></i><i style="height:44%"></i><i style="height:78%"></i><i style="height:62%"></i><i style="height:90%"></i><i style="height:54%"></i><i style="height:70%"></i>
+      </div>
+      <div class="earning-pop" id="earningPop">+ $42.50 just now • Eco-Beauty</div>
+    </div>
+  </div>
+</section>
+
+<!-- Social Proof Strip -->
+<div class="proof-strip" id="proofStrip">
+  <div class="marquee" id="marquee">
+    <!-- duplicated via JS for infinite loop -->
+  </div>
+</div>
+
+<!-- Portfolio -->
+<section class="section" id="portfolio">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2 id="portfolioHead">Stores Built for Conversion</h2>
+      <p id="portfolioSub">Every store is mobile-first, trust-engineered, and built to lift AOV from day one.</p>
+    </div>
+    <div class="filter-bar" id="portfolioFilters"></div>
+    <div class="grid grid-4 reveal" id="portfolioGrid"></div>
+  </div>
+</section>
+
+<!-- Sales Proof -->
+<section class="section" id="proof" style="background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2 id="proofHead">Real Revenue. Real Stores. Real Proof.</h2>
+      <p id="proofSub">Dashboard screenshots and payout receipts from stores launched through WAYWEALTH. No stock photos.</p>
+    </div>
+    <div class="grid grid-3 proof-grid reveal" id="proofGrid"></div>
+  </div>
+</section>
+
+<!-- Experts -->
+<section class="section" id="experts">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2 id="expertsHead">Meet the Experts Behind Every Build</h2>
+      <p id="expertsSub">Specialists in product research, conversion design, and fulfillment — one team, one outcome.</p>
+    </div>
+    <div class="grid expert-grid reveal" id="expertsGrid"></div>
+  </div>
+</section>
+
+<!-- Process -->
+<section class="section" id="process" style="background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2 id="processHead">How It Works — The 4-Step Launch Engine</h2>
+      <p id="processSub">From niche validation to handover — a proven system, not guesswork.</p>
+    </div>
+    <div class="steps reveal" id="processGrid"></div>
+  </div>
+</section>
+
+<!-- Certificates & Rewards -->
+<section class="section" id="certificates" style="background:#fafafa;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2 id="certificatesHead">Certificates & Awards</h2>
+      <p id="certificatesSub">Recognized for excellence — verified badges, partnerships and industry awards that prove our track record.</p>
+    </div>
+    <div class="grid grid-3 reveal" id="certificatesGrid"></div>
+  </div>
+</section>
+
+<!-- Pricing -->
+<section class="section" id="pricing">
+  <div class="container">
+    <div class="section-head reveal">
+      <h2 id="pricingHead">Investment & Packages</h2>
+      <p id="pricingSub">Transparent packages. Full ownership. No hidden royalties.</p>
+    </div>
+    <div class="grid pricing-grid reveal" id="pricingGrid"></div>
+  </div>
+</section>
+
+<!-- Testimonials -->
+<section class="section" id="testimonials" style="background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+  <div class="container">
+    <div class="section-head reveal"><h2 id="testimonialsHead">What Founders Say</h2><p id="testimonialsSub" class="muted" style="margin-top:8px"></p></div>
+    <div class="grid grid-3 reveal" id="testimonialsGrid"></div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="section" id="faq">
+  <div class="container">
+    <div class="section-head reveal"><h2 id="faqHead">Questions, Answered Honestly</h2><p id="faqSub" class="muted" style="margin-top:8px"></p></div>
+    <div class="faq reveal" id="faqList"></div>
+  </div>
+</section>
+
+<!-- Lead Form -->
+<section class="section" id="apply">
+  <div class="container">
+    <div class="form-shell reveal" id="formShell">
+      <div class="form-head">
+        <h3 id="formHead">Apply for Your Custom Store Launch</h3>
+        <p id="formSub">Tell us about your goals so we can prepare the right plan before your call.</p>
+        <div class="stepper"><i id="s1" class="active"></i><i id="s2"></i><i id="s3"></i></div>
+      </div>
+      <form id="leadForm" class="form-body" novalidate>
+        <input type="text" name="honeypot" class="hp" tabindex="-1" autocomplete="off">
+        <!-- Step 1 -->
+        <div class="form-step" data-step="1">
+          <div class="field"><label>Full Name *</label><input name="name" required placeholder="e.g. Victory Owabor"><div class="error">Enter your full name</div></div>
+          <div class="field"><label>Desired Brand / Niche Name *</label><input name="storeName" required placeholder="e.g. LUXEORA — luxury accessories"><div class="error">Enter a brand or niche name</div></div>
+          <div class="field"><label>Investment Range *</label>
+            <div class="radio-row">
+              <label class="radio-pill"><input type="radio" name="investmentRange" value="Starter ($450)" required> Starter ($450)</label>
+              <label class="radio-pill"><input type="radio" name="investmentRange" value="Scale ($850)"> Scale ($850)</label>
+              <label class="radio-pill"><input type="radio" name="investmentRange" value="Elite (Custom)"> Elite (Custom)</label>
+              <label class="radio-pill"><input type="radio" name="investmentRange" value="Not sure yet"> Not sure yet</label>
+            </div><div class="error">Pick an investment range</div>
+          </div>
+        </div>
+        <!-- Step 2 -->
+        <div class="form-step hidden" data-step="2">
+          <div class="field"><label>Current Status *</label>
+            <div class="radio-row">
+              <label class="radio-pill"><input type="radio" name="storeStatus" value="brand_new" required> Brand new</label>
+              <label class="radio-pill"><input type="radio" name="storeStatus" value="existing_not_converting"> Have a store that isn't converting</label>
+            </div><div class="error">Select your status</div>
+          </div>
+          <div class="field"><label>Previously lost money to a fake mentor/agency? *</label>
+            <div class="radio-row">
+              <label class="radio-pill"><input type="radio" name="wasScammed" value="yes" required> Yes</label>
+              <label class="radio-pill"><input type="radio" name="wasScammed" value="no"> No</label>
+            </div><div class="error">Please choose yes or no</div>
+          </div>
+          <div class="field hidden" id="scamField"><label>What happened? (optional but helps us help you)</label><textarea name="scamDetails" placeholder="Briefly — what was promised vs delivered?"></textarea></div>
+        </div>
+        <!-- Step 3 -->
+        <div class="form-step hidden" data-step="3">
+          <div class="field"><label>WhatsApp Number *</label><input name="whatsapp" required placeholder="+234 800 000 0000" inputmode="tel"><div class="error">Enter a valid WhatsApp number (10+ digits)</div></div>
+          <div class="field"><label>Business Email *</label><input name="email" type="email" required placeholder="you@brand.com"><div class="error">Enter a valid email</div></div>
+          <div class="field"><label>Preferred Contact Time</label><input name="preferredContactTime" placeholder="e.g. Weekdays 3–6pm WAT"></div>
+          <div class="field"><label>How did you hear about us?</label>
+            <select name="source"><option value="">Select…</option><option>Instagram</option><option>WhatsApp status</option><option>TikTok</option><option>Referral</option><option>Google</option><option>Other</option></select>
+          </div>
+          <div class="field"><label>Primary traffic plan</label>
+            <select name="trafficPlan"><option value="">Select…</option><option>TikTok Ads</option><option>Meta Ads</option><option>Google SEO</option><option>Influencers</option><option>Undecided</option></select>
+          </div>
+          <div class="field"><label style="text-transform:none;font-weight:500;display:flex;gap:8px;align-items:center"><input type="checkbox" name="consent" required> I agree to be contacted via WhatsApp/Email about my application. *</label><div class="error">Consent is required</div></div>
+        </div>
+
+        <div class="form-nav">
+          <button type="button" class="btn btn-ghost hidden" id="prevBtn">← Back</button>
+          <button type="button" class="btn btn-primary" id="nextBtn" style="margin-left:auto">Continue →</button>
+          <button type="submit" class="btn btn-primary hidden" id="submitBtn" style="margin-left:auto">Submit Application & Book Strategy Call</button>
+        </div>
+      </form>
+      <div id="formSuccess" class="success-box hidden">
+        <h3>✅ Application received.</h3>
+        <p>We'll reach out on WhatsApp shortly. Need us now? Message us directly:</p>
+        <a id="successWa" href="#" class="btn btn-primary" style="margin-top:14px">Message on WhatsApp</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer" id="footerSec">
+  <div class="container">
+    <div class="footer-grid">
+      <div><div class="logo" style="color:#fff;margin-bottom:10px" id="footerLogoWrap"><img id="footerLogo" src="" alt="WAYWEALTH" style="height:28px;display:none;vertical-align:middle"><span id="footerLogoText">WAY<span style="color:var(--accent)">WEALTH</span></span></div><p style="opacity:.6;font-size:13px" id="footerTagline">The E-Commerce Venture Studio. We engineer high-converting storefronts.</p></div>
+      <div><h4 id="footerContactHead">Contact</h4><a id="footerWa" href="#">WhatsApp</a><a id="footerEmail" href="mailto:hello@waywealth.studio">hello@waywealth.studio</a><a id="bookingLink" href="#">Book a Strategy Call</a></div>
+      <div><h4 id="footerLegalHead">Legal</h4><a href="#" id="footerPrivacy">Privacy Policy</a><a href="#" id="footerTerms">Terms</a><a href="#" id="footerRefund">Refund Policy</a></div>
+    </div>
+    <div class="footer-bottom"><span id="footerCopyright">© 2026 WAYWEALTH Venture Studio. All rights reserved.</span><span id="footerTrust">Built for trust. Verified numbers only.</span></div>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox"><button class="lightbox-close" id="lbClose">×</button><img id="lbImg" src="" alt=""></div>
+
+<script src="/js/main.js"></script>
+</body>
+</html>

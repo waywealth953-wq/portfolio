@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>WAYWEALTH — Admin Command Center</title>
+<link rel="stylesheet" href="/admin/admin.css">
+</head>
+<body>
+<div id="loginView" class="login-wrap">
+  <form id="loginForm" class="login-card">
+    <div class="logo">WAY<span>WEALTH</span> <small>Admin</small></div>
+    <h2>Sign in</h2>
+    <p class="muted">Single-owner auth. Session timeout + rate-limited.</p>
+    <label>Email<input name="email" type="email" required value="admin@waywealth.studio"></label>
+    <label>Password<input name="password" type="password" required value="Admin123!"></label>
+    <button type="submit" class="btn btn-primary" style="width:100%">Sign in</button>
+    <p id="loginErr" class="err hidden"></p>
+    <p class="muted" style="font-size:12px;margin-top:10px">Default: admin@waywealth.studio / Admin123! — change via <code>.env</code></p>
+  </form>
+</div>
+
+<div id="appView" class="app hidden">
+  <aside class="sidebar">
+    <div class="brand">WAY<span>WEALTH</span><em>Command Center</em></div>
+    <nav class="snav">
+      <button data-tab="overview" class="active">Overview</button>
+      <button data-tab="content">Content — All Sections</button>
+      <button data-tab="media">Media</button>
+      <button data-tab="certificates">Certificates & Rewards</button>
+      <button data-tab="team">Team</button>
+      <button data-tab="process">Process Steps</button>
+      <button data-tab="pricing">Pricing Plans</button>
+      <button data-tab="faq">FAQ</button>
+      <button data-tab="sections">Sections</button>
+      <button data-tab="branding">Branding (Logo/Favicon)</button>
+      <button data-tab="theme">Theme</button>
+      <button data-tab="leads">Leads / CRM</button>
+      <button data-tab="analytics">Analytics</button>
+    </nav>
+    <div class="sfoot">
+      <span id="adminEmail" class="muted" style="font-size:12px"></span>
+      <button id="logoutBtn" class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px">Logout</button>
+      <a href="/" target="_blank" class="btn btn-ghost btn-sm" style="width:100%;margin-top:8px;text-align:center">View Live Site ↗</a>
+    </div>
+  </aside>
+  <main class="main">
+    <!-- Overview -->
+    <section class="tab active" id="tab-overview">
+      <h1>Overview</h1>
+      <p class="muted">Everything editable — no hardcoded section left. Upload images, edit text, toggle visibility.</p>
+      <div class="kpis" id="kpis"></div>
+      <div class="card" style="padding:16px;margin-top:16px">
+        <h3>Quick Actions</h3>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px">
+          <button class="btn btn-primary btn-sm" data-goto="leads">Open Leads</button>
+          <button class="btn btn-ghost btn-sm" data-goto="certificates">Upload Certificate</button>
+          <button class="btn btn-ghost btn-sm" data-goto="media">Upload Proof</button>
+          <button class="btn btn-ghost btn-sm" data-goto="team">Edit Experts</button>
+          <button class="btn btn-ghost btn-sm" onclick="window.open('/','_blank')">Preview Live Site</button>
+        </div>
+      </div>
+      <div class="card" style="padding:16px;margin-top:16px">
+        <h3>All Sections Checklist</h3>
+        <p class="muted" style="font-size:12px">Green = editable in backend. Every section now has a dedicated editor below.</p>
+        <ul style="font-size:13px;line-height:1.9;margin-top:8px;columns:2">
+          <li>✅ Header / Nav</li><li>✅ Hero (badge, headline, sub, CTAs, trust, mockup)</li><li>✅ Social Proof / Marquee (stats)</li><li>✅ Portfolio (image upload)</li><li>✅ Sales Proof (image upload)</li><li>✅ Experts / Team (image upload)</li><li>✅ Certificates & Awards (image upload)</li><li>✅ Process Steps</li><li>✅ Pricing Plans</li><li>✅ Testimonials</li><li>✅ FAQ</li><li>✅ Lead Form headings</li><li>✅ Footer (all links/text)</li><li>✅ Theme (colors)</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Content — grouped by section, fully dynamic -->
+    <section class="tab" id="tab-content">
+      <h1>Content — Every Section</h1>
+      <p class="muted">All text on the site is editable here. Grouped by section (header, hero, process, certificates, pricing, etc.). HTML allowed in hero headline.</p>
+      <div id="contentEditor"></div>
+    </section>
+
+    <!-- Media -->
+    <section class="tab" id="tab-media">
+      <h1>Media Manager</h1>
+      <div class="tabs-mini">
+        <button class="mini active" data-mtype="portfolio">Portfolio</button>
+        <button class="mini" data-mtype="sales_proof">Sales Proof</button>
+        <button class="mini" data-mtype="testimonials">Testimonials</button>
+      </div>
+      <div class="card" style="padding:16px;margin:14px 0">
+        <h3>Add new <span id="mtypeLabel">portfolio</span> item</h3>
+        <form id="mediaForm" style="display:grid;gap:10px;margin-top:10px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <label>Upload file<input type="file" name="file" accept="image/*"></label>
+            <label>Or paste image URL<input name="url" placeholder="https://…"></label>
+          </div>
+          <label>Caption / Quote<input name="caption" placeholder="Short micro-case-study caption"></label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <label>Category / Tag<input name="category" placeholder="e.g. Luxury Accessories"></label>
+            <label>Alt text (SEO)<input name="alt_text" placeholder="Describe image for screen readers"></label>
+          </div>
+          <label>Order (0 = first)<input name="order" type="number" value="0"></label>
+          <div id="uploadProgress" class="progress hidden"><i></i><span>Uploading…</span></div>
+          <div id="mediaPreview" class="preview hidden"><img src="" alt="" style="max-width:220px;border-radius:10px;border:1px solid var(--border)"><p class="muted" style="font-size:12px">Preview — check crop before publishing</p></div>
+          <button type="submit" class="btn btn-primary btn-sm">Upload & Publish</button>
+        </form>
+      </div>
+      <div id="mediaGrid" class="grid2"></div>
+    </section>
+
+    <!-- Certificates & Rewards -->
+    <section class="tab" id="tab-certificates">
+      <h1>Certificates & Awards — Image Upload</h1>
+      <p class="muted">Upload certificate/award images. They appear in the new homepage section. Supports image file upload or external URL + caption.</p>
+      <div class="card" style="padding:16px;margin:14px 0">
+        <h3>Add Certificate / Award</h3>
+        <form id="certForm" style="display:grid;gap:10px;margin-top:10px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <label>Image file *<input type="file" name="file" accept="image/*"></label>
+            <label>Or image URL<input name="image_url" placeholder="https://…"></label>
+          </div>
+          <label>Title *<input name="title" required placeholder="e.g. Shopify Partner Certified"></label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <label>Issuer<input name="issuer" placeholder="e.g. Shopify, Meta, Award body"></label>
+            <label>Category / Badge<input name="category" placeholder="e.g. Partnership, Award, Certification"></label>
+          </div>
+          <label>Description<textarea name="description" placeholder="Short verification note…"></textarea></label>
+          <label>Order<input name="order" type="number" value="0"></label>
+          <div id="certPreview" class="preview hidden"><img src="" alt="" style="max-width:220px;border-radius:10px;border:1px solid var(--border)"><p class="muted" style="font-size:12px">Image preview</p></div>
+          <button type="submit" class="btn btn-primary btn-sm">Upload Certificate</button>
+        </form>
+      </div>
+      <div id="certGrid" class="grid2"></div>
+    </section>
+
+    <!-- Team -->
+    <section class="tab" id="tab-team">
+      <h1>Meet the Experts — 2×2 Grid</h1>
+      <p class="muted">4 featured profiles on homepage. Drag to reorder. Square headshots recommended.</p>
+      <div class="card" style="padding:16px;margin:14px 0">
+        <h3>Add Expert</h3>
+        <form id="teamForm" style="display:grid;gap:10px;margin-top:10px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <label>Name *<input name="name" required placeholder="Full name"></label>
+            <label>Role / Title<input name="role" placeholder="e.g. Head of Conversion"></label>
+          </div>
+          <label>Credibility note<input name="credibility_note" placeholder="e.g. Led 40+ store launches"></label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <label>Photo file<input type="file" name="file" accept="image/*"></label>
+            <label>Or photo URL<input name="photo_url" placeholder="https://…"></label>
+          </div>
+          <label>Social / LinkedIn URL<input name="social_url" placeholder="https://linkedin.com/in/…"></label>
+          <label>Order<input name="order" type="number" value="0"></label>
+          <button type="submit" class="btn btn-primary btn-sm">Add Expert</button>
+        </form>
+      </div>
+      <div id="teamGrid" class="grid2"></div>
+    </section>
+
+    <!-- Process Steps -->
+    <section class="tab" id="tab-process">
+      <h1>Process — 4-Step Launch Engine</h1>
+      <p class="muted">Every step is editable. Add/remove, reorder via Order field, publish toggle.</p>
+      <div class="card" style="padding:16px;margin:14px 0">
+        <h3>Add / Edit Step</h3>
+        <form id="processForm" style="display:grid;gap:10px;margin-top:10px">
+          <div style="display:grid;grid-template-columns:80px 1fr;gap:10px">
+            <label>Step #<input name="step_num" type="number" value="5"></label>
+            <label>Title *<input name="title" required placeholder="Step title"></label>
+          </div>
+          <label>Description<textarea name="description" placeholder="What happens in this step?"></textarea></label>
+          <label>Order<input name="order" type="number" value="0"></label>
+          <button type="submit" class="btn btn-primary btn-sm">Add Step</button>
+        </form>
+      </div>
+      <div id="processList" class="grid2"></div>
+    </section>
+
+    <!-- Pricing -->
+    <section class="tab" id="tab-pricing">
+      <h1>Pricing Plans</h1>
+      <p class="muted">All pricing cards editable — price, suffix, description, features (one per line), CTA label/link, featured toggle.</p>
+      <div class="card" style="padding:16px;margin:14px 0">
+        <h3>Add Pricing Plan</h3>
+        <form id="pricingForm" style="display:grid;gap:10px;margin-top:10px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <label>Name *<input name="name" required placeholder="e.g. Starter"></label>
+            <label>Price *<input name="price" required placeholder="e.g. $450 or Custom"></label>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <label>Suffix<input name="price_suffix" placeholder="e.g. one-time, quote"></label>
+            <label>CTA Link<input name="cta_link" value="#apply"></label>
+          </div>
+          <label>Description<input name="description" placeholder="One-line subtext"></label>
+          <label>Features (one per line)<textarea name="features" placeholder="1 validated product&#10;High-converting store&#10;Supplier setup"></textarea></label>
+          <div style="display:grid;grid-template-columns:1fr 1fr 80px 80px;gap:10px">
+            <label>CTA Label<input name="cta_label" placeholder="Apply — Starter"></label>
+            <label>Order<input name="order" type="number" value="0"></label>
+            <label style="flex-direction:row;align-items:center;gap:6px"><input type="checkbox" name="featured"> Featured</label>
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm">Add Plan</button>
+        </form>
+      </div>
+      <div id="pricingList" class="grid2"></div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="tab" id="tab-faq">
+      <h1>FAQ — Questions & Answers</h1>
+      <p class="muted">Every Q&A on the homepage is editable here. Published = visible.</p>
+      <div class="card" style="padding:16px;margin:14px 0">
+        <h3>Add FAQ</h3>
+        <form id="faqForm" style="display:grid;gap:10px;margin-top:10px">
+          <label>Question *<input name="question" required placeholder="Question"></label>
+          <label>Answer *<textarea name="answer" required placeholder="Answer"></textarea></label>
+          <label>Order<input name="order" type="number" value="0"></label>
+          <button type="submit" class="btn btn-primary btn-sm">Add FAQ</button>
+        </form>
+      </div>
+      <div id="faqListAdmin"></div>
+    </section>
+
+    <!-- Sections -->
+    <section class="tab" id="tab-sections">
+      <h1>Section Visibility, Order & Animation</h1>
+      <p class="muted">Toggle any homepage section, drag to reorder, and control scroll animations — no code. Now includes Certificates.</p>
+      <div id="sectionsList"></div>
+      <label style="margin-top:16px;display:flex;gap:8px;align-items:center"><input type="checkbox" id="reducedMotion"> Global Reduced Motion (respects prefers-reduced-motion)</label>
+    </section>
+
+    <!-- Branding -->
+    <section class="tab" id="tab-branding">
+      <h1>Branding — Logo & Favicon</h1>
+      <p class="muted">Upload your site logo and favicon. They appear instantly on the live site. Recommended: logo PNG/SVG with transparent background (height ~32px), favicon 32×32 or 512×512.</p>
+      <div class="card" style="padding:16px;margin:14px 0;max-width:640px">
+        <h3>Site Logo</h3>
+        <div id="brandingLogoPreview" style="margin:10px 0;padding:12px;border:1px dashed var(--border);border-radius:10px;text-align:center;background:#fafafa">
+          <img id="previewLogo" src="" alt="" style="max-height:40px;display:none"><p class="muted" style="font-size:12px">No logo uploaded — text logo is shown.</p>
+        </div>
+        <form id="logoForm" style="display:grid;gap:10px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <label>Upload logo file<input type="file" name="file" accept="image/*,.svg"></label>
+            <label>Or paste logo URL<input name="url" placeholder="https://…/logo.png"></label>
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm">Upload Logo</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="removeBranding('logo')">Remove Logo (use text)</button>
+        </form>
+      </div>
+      <div class="card" style="padding:16px;margin:14px 0;max-width:640px">
+        <h3>Favicon</h3>
+        <div id="brandingFaviconPreview" style="margin:10px 0;padding:12px;border:1px dashed var(--border);border-radius:10px;text-align:center;background:#fafafa">
+          <img id="previewFavicon" src="" alt="" style="width:32px;height:32px;display:none"><p class="muted" style="font-size:12px">No favicon uploaded — default icon is shown.</p>
+        </div>
+        <form id="faviconForm" style="display:grid;gap:10px">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <label>Upload favicon file<input type="file" name="file" accept="image/*,.svg,.ico"></label>
+            <label>Or paste favicon URL<input name="url" placeholder="https://…/favicon.png"></label>
+          </div>
+          <button type="submit" class="btn btn-primary btn-sm">Upload Favicon</button>
+          <button type="button" class="btn btn-ghost btn-sm" onclick="removeBranding('favicon')">Remove Favicon</button>
+        </form>
+      </div>
+      <div class="card" style="padding:16px;margin:14px 0;max-width:640px">
+        <h3>Site Title & Description (SEO)</h3>
+        <p class="muted" style="font-size:12px">Also editable in <b>Content → meta</b>. Quick edit here.</p>
+        <div style="display:grid;gap:10px;margin-top:10px">
+          <label>Site Title<input id="brandTitle" placeholder="WAYWEALTH — The E-Commerce Venture Studio"></label>
+          <label>Site Description<textarea id="brandDesc" rows="2" placeholder="Meta description"></textarea></label>
+          <button class="btn btn-primary btn-sm" onclick="saveBrandingMeta()">Save Title & Description</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Theme -->
+    <section class="tab" id="tab-theme">
+      <h1>Theme Engine</h1>
+      <p class="muted">Colors apply via CSS custom properties — one change updates the whole live site.</p>
+      <div class="card" style="padding:16px;display:grid;gap:12px;max-width:520px">
+        <label>Canvas (background)<input type="color" id="th_canvas"></label>
+        <label>Ink (text)<input type="color" id="th_ink"></label>
+        <label>Border<input type="color" id="th_border"></label>
+        <label>Accent (primary)<input type="color" id="th_accent"></label>
+        <label>Accent secondary (gold)<input type="color" id="th_accent2"></label>
+        <div style="display:flex;gap:10px">
+          <button id="themeSave" class="btn btn-primary btn-sm">Save Theme</button>
+          <button id="themePreview" class="btn btn-ghost btn-sm">Preview on Live Site</button>
+        </div>
+        <div id="themePrevBox" style="height:48px;border-radius:10px;border:1px solid var(--border);display:flex;overflow:hidden"><i style="flex:1"></i><i style="flex:1"></i><i style="flex:1"></i><i style="flex:1"></i></div>
+      </div>
+      <div class="card" style="padding:16px;margin-top:16px;max-width:520px">
+        <h3>Proof Stats (live marquee — keep honest)</h3>
+        <p class="muted" style="font-size:12px">These pull from <code>stats_cache</code> and should be refreshed nightly from real data.</p>
+        <div id="statsEditor" style="display:grid;gap:10px;margin-top:10px"></div>
+      </div>
+    </section>
+
+    <!-- Leads -->
+    <section class="tab" id="tab-leads">
+      <h1>Leads — Mini CRM</h1>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:10px 0">
+        <input id="leadSearch" placeholder="Search name, email, whatsapp…" style="flex:1;min-width:200px;padding:8px 10px;border:1px solid var(--border);border-radius:8px">
+        <select id="leadStageFilter"><option value="">All stages</option><option value="new">New</option><option value="contacted">Contacted</option><option value="scheduled">Call Scheduled</option><option value="closed">Client Closed</option><option value="archived">Archived</option></select>
+        <button id="leadExport" class="btn btn-ghost btn-sm">Export CSV</button>
+      </div>
+      <div id="kanban" class="kanban"></div>
+      <div id="leadsList"></div>
+    </section>
+
+    <!-- Analytics -->
+    <section class="tab" id="tab-analytics">
+      <h1>Analytics</h1>
+      <div id="analyticsBox"></div>
+    </section>
+  </main>
+</div>
+
+<script src="/admin/admin.js"></script>
+</body>
+</html>
