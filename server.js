@@ -409,7 +409,7 @@ const leadLimiter = rateLimit({
   legacyHeaders: false,
   message: { error: 'Too many submissions, please try again later.' }
 });
-const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 10, message: { error: 'Too many login attempts' } });
+const loginLimiter = rateLimit({ windowMs: 15 * 60 * 1000, max: 30, message: { error: 'Too many login attempts — please wait 15 minutes or restart the server to reset' } });
 
 // ── API: Content ──────────────────────────────────────────────────
 app.get('/api/content', (req, res) => {
