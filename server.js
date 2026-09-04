@@ -164,7 +164,12 @@ function initDB() {
   if (!existingAdmin) {
     const hash = bcrypt.hashSync(ADMIN_PASSWORD, 10);
     db.prepare('INSERT INTO admin_users (email, password_hash) VALUES (?, ?)').run(ADMIN_EMAIL, hash);
-    console.log(`[DB] Seeded admin: ${ADMIN_EMAIL} / ${ADMIN_PASSWORD}`);
+    console.log(`[DB] Seeded admin: ${ADMIN_EMAIL}`);
+  } else if (process.env.ADMIN_PASSWORD) {
+    // Allow .env to reset password — only you know it
+    const hash = bcrypt.hashSync(ADMIN_PASSWORD, 10);
+    db.prepare('UPDATE admin_users SET password_hash = ? WHERE email = ?').run(hash, ADMIN_EMAIL);
+    console.log(`[DB] Admin password synced from .env for ${ADMIN_EMAIL}`);
   }
 
   // ── Content: seed + migrate (INSERT OR IGNORE for every key so existing DB also gets new keys) ──
