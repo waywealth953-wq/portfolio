@@ -1,0 +1,22 @@
+WayWealth - How to Run (FIXED)
+==============================
+1. Open PowerShell in: C:\Users\USER\Documents\AI PORTFOLIO
+2. Run: npm start  (or: node server.js)
+3. Wait for: WayWealth running on http://localhost:3000
+4. Open in BROWSER (not file double-click):
+   Public site: http://localhost:3000
+   Admin:       http://localhost:3000/admin
+   Login: admin / WayWealth2024!
+
+DO NOT double-click public/index.html directly.
+That opens file:/// and breaks /css/style.css absolute paths.
+Always use http://localhost:3000
+
+If port 3000 busy:
+  $env:PORT=3001; npm start
+
+Verified FIXES applied 2026-09-01:
+- server now listens on 0.0.0.0 and keeps running
+- static CSS/JS correctly served (tested GET /css/style.css 200 text/css)
+- admin route fixed to handle both /admin and /admin/
+- helmet CSP disabled so styles not blocked
