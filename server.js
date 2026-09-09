@@ -15,6 +15,7 @@ const bcrypt = require('bcryptjs');
 const multer = require('multer');
 const cron = require('node-cron');
 const { DatabaseSync } = require('node:sqlite');
+const pgBackup = require('./lib/pgBackup');
 
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'waywealth_dev_secret_change_in_prod_32chars';
@@ -366,6 +367,45 @@ function initDB() {
 }
 initDB();
 
+const publicDir = path.join(__dirname, 'public');
+const uploadsDir = path.join(publicDir, 'uploads');
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+
+// ── Postgres auto-backup: restore on boot (fixes Render ephemeral disk) ──
+(async () => {
+  if (pgBackup.isEnabled()) {
+    try {
+      const r = await pgBackup.restoreIfEmpty(db, uploadsDir);
+      console.log('[Backup] restore check:', JSON.stringify(r));
+      // Take a fresh backup shortly after boot so Postgres always has latest seed
+      setTimeout(() => pgBackup.backupNow(db, uploadsDir).catch((e) => console.error('[Backup] boot backup failed:', e.message)), 15000);
+    } catch (e) {
+      console.error('[Backup] restore failed:', e.message);
+    }
+    // Periodic auto-backup (default every 10 min)
+    const everyMin = parseInt(process.env.BACKUP_INTERVAL_MIN || '10', 10);
+    if (everyMin > 0) {
+      cron.schedule(`*/${everyMin} * * * *`, async () => {
+        try { await pgBackup.backupNow(db, uploadsDir); }
+        catch (e) { console.error('[Backup] cron failed:', e.message); }
+      });
+      console.log(`[Backup] auto-backup every ${everyMin} min → Postgres`);
+    }
+    // Safety net: backup on graceful shutdown (Render sends SIGTERM on redeploy)
+    const shutdownBackup = async () => {
+      try { await pgBackup.backupNow(db, uploadsDir); console.log('[Backup] shutdown backup done'); }
+      catch (e) { console.error('[Backup] shutdown backup failed:', e.message); }
+    };
+    process.on('SIGTERM', () => { shutdownBackup().finally(() => process.exit(0)); });
+    process.on('SIGINT', () => { shutdownBackup().finally(() => process.exit(0)); });
+  } else {
+    console.log('[Backup] disabled — set DATABASE_URL to enable Postgres auto-backup');
+  }
+})();
+
+// Helper: queue a debounced backup after any write (content/media/leads/etc.)
+function queueBackup() { pgBackup.scheduleBackup(db, uploadsDir); }
+
 // ── Express App ────────────────────────────────────────────────────
 const app = express();
 app.use(helmet({ contentSecurityPolicy: false }));
@@ -374,9 +414,17 @@ app.use(express.json({ limit: '2mb' }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-const publicDir = path.join(__dirname, 'public');
-const uploadsDir = path.join(publicDir, 'uploads');
-if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+// Health check (required by Render healthCheckPath: /health)
+app.get('/health', async (req, res) => {
+  res.json({ ok: true, time: new Date().toISOString(), backup: await pgBackup.getStatus().catch(() => ({ enabled: false })) });
+});
+// Auto-backup after any API write (debounced 30s → Postgres). Must sit BEFORE routes.
+app.use('/api', (req, res, next) => {
+  if (['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method)) {
+    res.on('finish', () => { if (res.statusCode < 400) queueBackup(); });
+  }
+  next();
+});
 app.use(express.static(publicDir));
 app.use('/uploads', express.static(uploadsDir));
 
@@ -390,9 +438,9 @@ const storage = multer.diskStorage({
 });
 const upload = multer({
   storage,
-  limits: { fileSize: 8 * 1024 * 1024 },
+  limits: { fileSize: 100 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
-    const ok = /image\/(jpeg|png|webp|gif|avif|svg\+xml|x-icon|vnd\.microsoft\.icon)/.test(file.mimetype) || /\.(svg|ico|png|jpg|jpeg|webp|gif|avif)$/i.test(file.originalname);
+    const ok = /image\/(jpeg|png|webp|gif|avif|svg\+xml|x-icon|vnd\.microsoft\.icon)|video\/(mp4|webm|quicktime)/.test(file.mimetype) || /\.(svg|ico|png|jpg|jpeg|webp|gif|avif|mp4|webm|mov)$/i.test(file.originalname);
     cb(null, ok);
   }
 });
@@ -826,6 +874,17 @@ app.put('/api/stats/:metric', authMiddleware, (req, res) => {
   if (typeof value !== 'string') return res.status(400).json({ error: 'value required' });
   db.prepare("INSERT INTO stats_cache (metric, value, computed_at) VALUES (?, ?, datetime('now')) ON CONFLICT(metric) DO UPDATE SET value = excluded.value, computed_at = datetime('now')").run(req.params.metric, value);
   res.json({ ok: true });
+});
+
+// ── Backup API (admin) ────────────────────────────────────────────
+app.get('/api/backup/status', authMiddleware, async (req, res) => {
+  res.json(await pgBackup.getStatus());
+});
+app.post('/api/backup/now', authMiddleware, async (req, res) => {
+  try {
+    const r = await pgBackup.backupNow(db, uploadsDir);
+    res.json({ ok: true, ...r });
+  } catch (e) { res.status(500).json({ error: e.message }); }
 });
 
 // ── Auth ──────────────────────────────────────────────────────────

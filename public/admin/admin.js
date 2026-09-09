@@ -113,12 +113,13 @@ function loadMediaTab(){ renderMedia(currentMtype); }
 async function renderMedia(type){
   const r = await fetch('/api/media?type='+type, {headers:authHeaders()});
   const items = await r.json();
+  const isVideo = u => /\.(mp4|webm|mov)(\?|$)/i.test(u||'');
   $('#mediaGrid').innerHTML = items.map(m=>`
     <div class="card item-card">
-      <img src="${m.url}" alt="">
+      ${isVideo(m.url) ? `<video src="${m.url}" controls preload="metadata" style="width:120px;border-radius:8px;background:#000"></video>` : `<img src="${m.url}" alt="">`}
       <div style="flex:1;min-width:0">
         <strong style="font-size:13px">${m.caption||'(no caption)'}</strong>
-        <p class="muted">${m.category||''} • ${m.published?'Published':'Draft'} • order ${m.order}</p>
+        <p class="muted">${m.category||''} • ${isVideo(m.url)?'Video': 'Image'} • ${m.published?'Published':'Draft'} • order ${m.order}</p>
         <p class="muted" style="font-size:11px;word-break:break-all">${m.url}</p>
         <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
           <button class="btn btn-ghost btn-sm" onclick="editMedia(${m.id}, '${type}')">Edit</button>
@@ -154,9 +155,13 @@ $('#mediaForm').addEventListener('submit', async e=>{
   $('#uploadProgress').classList.remove('hidden');
   const fileInput = e.target.querySelector('input[type="file"]');
   if(fileInput.files[0]){
-    const reader = new FileReader();
-    reader.onload = ev => { $('#mediaPreview img').src = ev.target.result; $('#mediaPreview').classList.remove('hidden'); };
-    reader.readAsDataURL(fileInput.files[0]);
+    const f = fileInput.files[0];
+    const url = URL.createObjectURL(f);
+    const prev = $('#mediaPreview');
+    prev.classList.remove('hidden');
+    const img = prev.querySelector('img'), vid = prev.querySelector('video');
+    if(f.type.startsWith('video')){ if(img) img.style.display='none'; if(vid){ vid.src=url; vid.style.display='block'; } }
+    else { if(vid) vid.style.display='none'; if(img){ img.src=url; img.style.display='block'; } }
   } else if(fd.get('url')){
     $('#mediaPreview img').src = fd.get('url'); $('#mediaPreview').classList.remove('hidden');
   }

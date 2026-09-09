@@ -87,8 +87,8 @@
         <h3>Add new <span id="mtypeLabel">portfolio</span> item</h3>
         <form id="mediaForm" style="display:grid;gap:10px;margin-top:10px">
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
-            <label>Upload file<input type="file" name="file" accept="image/*"></label>
-            <label>Or paste image URL<input name="url" placeholder="https://…"></label>
+            <label>Upload file (image or video)<input type="file" name="file" accept="image/*,video/*,.mov"></label>
+            <label>Or paste file URL<input name="url" placeholder="https://…"></label>
           </div>
           <label>Caption / Quote<input name="caption" placeholder="Short micro-case-study caption"></label>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
@@ -97,7 +97,7 @@
           </div>
           <label>Order (0 = first)<input name="order" type="number" value="0"></label>
           <div id="uploadProgress" class="progress hidden"><i></i><span>Uploading…</span></div>
-          <div id="mediaPreview" class="preview hidden"><img src="" alt="" style="max-width:220px;border-radius:10px;border:1px solid var(--border)"><p class="muted" style="font-size:12px">Preview — check crop before publishing</p></div>
+          <div id="mediaPreview" class="preview hidden"><img src="" alt="" style="max-width:220px;border-radius:10px;border:1px solid var(--border)"><video src="" controls style="max-width:220px;border-radius:10px;display:none"></video><p class="muted" style="font-size:12px">Preview — check crop before publishing</p></div>
           <button type="submit" class="btn btn-primary btn-sm">Upload & Publish</button>
         </form>
       </div>

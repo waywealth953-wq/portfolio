@@ -11,6 +11,12 @@ services:
         value: production
       - key: JWT_SECRET
         generateValue: true
-      # Change these after first deploy in Render dashboard:
-      # JWT_SECRET = long random string
-      # Optionally override admin password via env (handled in server.js if you add it)
+      - key: DATABASE_URL
+        sync: false
+      - key: BACKUP_INTERVAL_MIN
+        value: 10
+      - key: BACKUP_ON_WRITE
+        value: 1
+      # ── REQUIRED on Render dashboard (Environment → Add, mark Secret):
+      # DATABASE_URL = postgres://avnadmin:...@pg-...aivencloud.com:20172/defaultdb?sslmode=require
+      # ADMIN_EMAIL / ADMIN_PASSWORD = your login (optional override)

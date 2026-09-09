@@ -221,12 +221,19 @@ async function loadGalleries(){
       proofGrid.querySelectorAll('.card').forEach((c,i)=> c.onclick=()=> openLb(proof[i].url, proof[i].caption));
     }
 
-    // Testimonials
+    // Testimonials (images + playable videos)
     const testGrid=$('#testimonialsGrid');
     if(testGrid){
-      testGrid.innerHTML = testimonials.map(m=>`
-        <div class="card quote-card"><p>“${(m.caption||'').replace(/^“|”$/g,'')}”</p>
-        <div class="quote-foot"><img src="${m.url}" alt=""><div><strong>${m.category||''}</strong><br><span>${m.alt_text||''}</span></div></div></div>`).join('') || `<p class="muted">No testimonials yet.</p>`;
+      const isVideo = u => /\.(mp4|webm|mov)(\?|$)/i.test(u||'');
+      testGrid.innerHTML = testimonials.map(m=>{
+        if(isVideo(m.url)){
+          return `<div class="card quote-card video-card"><video src="${m.url}" controls preload="metadata" playsinline style="width:100%;border-radius:10px;background:#000"></video>
+          <p>“${(m.caption||'').replace(/^“|”$/g,'')}”</p>
+          <div class="quote-foot"><div><strong>${m.category||'Verified Founder'}</strong><br><span>${m.alt_text||''}</span></div></div></div>`;
+        }
+        return `<div class="card quote-card"><p>“${(m.caption||'').replace(/^“|”$/g,'')}”</p>
+        <div class="quote-foot"><img src="${m.url}" alt=""><div><strong>${m.category||''}</strong><br><span>${m.alt_text||''}</span></div></div></div>`;
+      }).join('') || `<p class="muted">No testimonials yet.</p>`;
     }
 
     // Experts
