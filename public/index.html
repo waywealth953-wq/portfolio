@@ -174,45 +174,45 @@
         <input type="text" name="honeypot" class="hp" tabindex="-1" autocomplete="off">
         <!-- Step 1 -->
         <div class="form-step" data-step="1">
-          <div class="field"><label>Full Name *</label><input name="name" required placeholder="e.g. Victory Owabor"><div class="error">Enter your full name</div></div>
-          <div class="field"><label>Desired Brand / Niche Name *</label><input name="storeName" required placeholder="e.g. LUXEORA — luxury accessories"><div class="error">Enter a brand or niche name</div></div>
-          <div class="field"><label>Investment Range *</label>
+          <div class="field"><label id="flName">Full Name *</label><input name="name" required placeholder="e.g. Victory Owabor"><div class="error" id="eName">Enter your full name</div></div>
+          <div class="field"><label id="flBrand">Desired Brand / Niche Name *</label><input name="storeName" required placeholder="e.g. LUXEORA — luxury accessories"><div class="error" id="eBrand">Enter a brand or niche name</div></div>
+          <div class="field"><label id="flInvestment">Investment Range *</label>
             <div class="radio-row">
               <label class="radio-pill"><input type="radio" name="investmentRange" value="Starter ($450)" required> Starter ($450)</label>
               <label class="radio-pill"><input type="radio" name="investmentRange" value="Scale ($850)"> Scale ($850)</label>
               <label class="radio-pill"><input type="radio" name="investmentRange" value="Elite (Custom)"> Elite (Custom)</label>
               <label class="radio-pill"><input type="radio" name="investmentRange" value="Not sure yet"> Not sure yet</label>
-            </div><div class="error">Pick an investment range</div>
+            </div><div class="error" id="eBudget">Pick an investment range</div>
           </div>
         </div>
         <!-- Step 2 -->
         <div class="form-step hidden" data-step="2">
-          <div class="field"><label>Current Status *</label>
+          <div class="field"><label id="flStatus">Current Status *</label>
             <div class="radio-row">
-              <label class="radio-pill"><input type="radio" name="storeStatus" value="brand_new" required> Brand new</label>
-              <label class="radio-pill"><input type="radio" name="storeStatus" value="existing_not_converting"> Have a store that isn't converting</label>
-            </div><div class="error">Select your status</div>
+              <label class="radio-pill"><input type="radio" name="storeStatus" value="brand_new" required> <span id="optNew">Brand new</span></label>
+              <label class="radio-pill"><input type="radio" name="storeStatus" value="existing_not_converting"> <span id="optExisting">Have a store that isn't converting</span></label>
+            </div><div class="error" id="eStatus">Select your status</div>
           </div>
-          <div class="field"><label>Previously lost money to a fake mentor/agency? *</label>
+          <div class="field"><label id="flScam">Previously lost money to a fake mentor/agency? *</label>
             <div class="radio-row">
               <label class="radio-pill"><input type="radio" name="wasScammed" value="yes" required> Yes</label>
               <label class="radio-pill"><input type="radio" name="wasScammed" value="no"> No</label>
-            </div><div class="error">Please choose yes or no</div>
+            </div><div class="error" id="eScam">Please choose yes or no</div>
           </div>
-          <div class="field hidden" id="scamField"><label>What happened? (optional but helps us help you)</label><textarea name="scamDetails" placeholder="Briefly — what was promised vs delivered?"></textarea></div>
+          <div class="field hidden" id="scamField"><label id="flScamDet">What happened? (optional but helps us help you)</label><textarea name="scamDetails" placeholder="Briefly — what was promised vs delivered?"></textarea></div>
         </div>
         <!-- Step 3 -->
         <div class="form-step hidden" data-step="3">
-          <div class="field"><label>WhatsApp Number *</label><input name="whatsapp" required placeholder="+234 800 000 0000" inputmode="tel"><div class="error">Enter a valid WhatsApp number (10+ digits)</div></div>
-          <div class="field"><label>Business Email *</label><input name="email" type="email" required placeholder="you@brand.com"><div class="error">Enter a valid email</div></div>
-          <div class="field"><label>Preferred Contact Time</label><input name="preferredContactTime" placeholder="e.g. Weekdays 3–6pm WAT"></div>
-          <div class="field"><label>How did you hear about us?</label>
-            <select name="source"><option value="">Select…</option><option>Instagram</option><option>WhatsApp status</option><option>TikTok</option><option>Referral</option><option>Google</option><option>Other</option></select>
+          <div class="field"><label id="flWa">WhatsApp Number *</label><input name="whatsapp" required placeholder="+234 800 000 0000" inputmode="tel"><div class="error" id="eWa">Enter a valid WhatsApp number (10+ digits)</div></div>
+          <div class="field"><label id="flEmail">Business Email *</label><input name="email" type="email" required placeholder="you@brand.com"><div class="error" id="eEmail">Enter a valid email</div></div>
+          <div class="field"><label id="flContact">Preferred Contact Time</label><input name="preferredContactTime" placeholder="e.g. Weekdays 3–6pm WAT"></div>
+          <div class="field"><label id="flSource">How did you hear about us?</label>
+            <select name="source" id="sourceSel"><option value="">Select…</option><option>Instagram</option><option>WhatsApp status</option><option>TikTok</option><option>Referral</option><option>Google</option><option>Other</option></select>
           </div>
-          <div class="field"><label>Primary traffic plan</label>
-            <select name="trafficPlan"><option value="">Select…</option><option>TikTok Ads</option><option>Meta Ads</option><option>Google SEO</option><option>Influencers</option><option>Undecided</option></select>
+          <div class="field"><label id="flTraffic">Primary traffic plan</label>
+            <select name="trafficPlan" id="trafficSel"><option value="">Select…</option><option>TikTok Ads</option><option>Meta Ads</option><option>Google SEO</option><option>Influencers</option><option>Undecided</option></select>
           </div>
-          <div class="field"><label style="text-transform:none;font-weight:500;display:flex;gap:8px;align-items:center"><input type="checkbox" name="consent" required> I agree to be contacted via WhatsApp/Email about my application. *</label><div class="error">Consent is required</div></div>
+          <div class="field"><label style="text-transform:none;font-weight:500;display:flex;gap:8px;align-items:center"><input type="checkbox" name="consent" required> <span id="flConsent">I agree to be contacted via WhatsApp/Email about my application. *</span></label><div class="error" id="eConsent">Consent is required</div></div>
         </div>
 
         <div class="form-nav">
@@ -222,8 +222,8 @@
         </div>
       </form>
       <div id="formSuccess" class="success-box hidden">
-        <h3>✅ Application received.</h3>
-        <p>We'll reach out on WhatsApp shortly. Need us now? Message us directly:</p>
+        <h3 id="fsTitle">✅ Application received.</h3>
+        <p id="fsText">We'll reach out on WhatsApp shortly. Need us now? Message us directly:</p>
         <a id="successWa" href="#" class="btn btn-primary" style="margin-top:14px">Message on WhatsApp</a>
       </div>
     </div>

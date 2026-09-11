@@ -48,6 +48,7 @@ async function loadDynamic(){
     const [cRes, sRes, secRes] = await Promise.all([fetch('/api/content'), fetch('/api/stats'), fetch('/api/sections')]);
     const content = await cRes.json();
     const stats = await sRes.json();
+    window.WW_CONTENT = content; // site-wide editable copy (popups, tickers, etc.)
     // Theme via CSS vars
     if(content.theme_canvas) document.documentElement.style.setProperty('--canvas', content.theme_canvas);
     if(content.theme_ink) document.documentElement.style.setProperty('--ink', content.theme_ink);
@@ -99,6 +100,38 @@ async function loadDynamic(){
     setT('#faqSub', content.faq_subhead);
     setT('#formHead', content.form_headline);
     setT('#formSub', content.form_subhead);
+    // Form microcopy — every label, placeholder, option, error and button is editable
+    const setPH = (name, val)=>{ const el=document.querySelector(`#leadForm [name="${name}"]`); if(el && val) el.placeholder=val; };
+    setT('#flName', content.form_label_name); setPH('name', content.form_ph_name);
+    setT('#flBrand', content.form_label_brand); setPH('storeName', content.form_ph_brand);
+    setT('#flInvestment', content.form_label_investment);
+    setT('#flStatus', content.form_label_status);
+    setT('#optNew', content.form_opt_new); setT('#optExisting', content.form_opt_existing);
+    setT('#flScam', content.form_label_scam);
+    setT('#flScamDet', content.form_label_scam_details); setPH('scamDetails', content.form_ph_scam);
+    setT('#flWa', content.form_label_whatsapp); setPH('whatsapp', content.form_ph_whatsapp);
+    setT('#flEmail', content.form_label_email); setPH('email', content.form_ph_email);
+    setT('#flContact', content.form_label_contact_time); setPH('preferredContactTime', content.form_ph_contact_time);
+    setT('#flSource', content.form_label_source);
+    setT('#flTraffic', content.form_label_traffic);
+    setT('#flConsent', content.form_label_consent);
+    const fillSelect = (sel, opts)=>{
+      const el=$(sel); if(!el || !opts) return;
+      const lines=opts.split('\n').map(s=>s.trim()).filter(Boolean);
+      if(!lines.length) return;
+      const cur=el.value;
+      el.innerHTML=`<option value="">${lines[0]==='Select…'||lines[0]==='Select...'?lines[0]:'Select…'}</option>`+lines.filter((l,i)=>!(i===0&&(l==='Select…'||l==='Select...'))).map(l=>`<option>${l.replace(/</g,'&lt;')}</option>`).join('');
+      if(cur) el.value=cur;
+    };
+    fillSelect('#sourceSel', content.form_source_options);
+    fillSelect('#trafficSel', content.form_traffic_options);
+    setT('#eName', content.form_err_name); setT('#eBrand', content.form_err_brand);
+    setT('#eBudget', content.form_err_budget); setT('#eStatus', content.form_err_status);
+    setT('#eScam', content.form_err_scam); setT('#eWa', content.form_err_wa);
+    setT('#eEmail', content.form_err_email); setT('#eConsent', content.form_err_consent);
+    setT('#nextBtn', content.form_btn_next); setT('#prevBtn', content.form_btn_back); setT('#submitBtn', content.form_btn_submit);
+    setT('#fsTitle', content.form_success_title); setT('#fsText', content.form_success_text); setT('#successWa', content.form_success_btn);
+    setT('#footerWa', content.footer_link_whatsapp); setT('#bookingLink', content.footer_link_booking);
     setT('#footerTagline', content.footer_tagline);
     setT('#footerContactHead', content.footer_contact_heading);
     setT('#footerLegalHead', content.footer_legal_heading);
@@ -129,6 +162,8 @@ async function loadDynamic(){
       if(fav){ fav.href=content.site_favicon; }
     }
     if(content.site_title){ document.title=content.site_title; const og=document.querySelector('meta[property="og:title"]'); if(og) og.content=content.site_title; }
+    if(content.og_image){ const ogi=document.querySelector('meta[property="og:image"]'); if(ogi) ogi.content=content.og_image; }
+    else if(content.site_logo){ const ogi=document.querySelector('meta[property="og:image"]'); if(ogi) ogi.content=content.site_logo; }
     if(content.site_description){ const md=document.querySelector('meta[name="description"]'); if(md) md.content=content.site_description; const ogd=document.querySelector('meta[property="og:description"]'); if(ogd) ogd.content=content.site_description; }
     // Marquee stats (live, DB-driven)
     const marquee = $('#marquee');
@@ -309,7 +344,7 @@ setInterval(()=>{
   if(o){ o.textContent = String(120 + Math.floor(Math.random()*18)); }
 }, 3200);
 const pops = ['+ $42.50 just now \u2022 Eco-Beauty','+ $18.20 just now \u2022 Tech Gadgets','+ $67.90 just now \u2022 Fitness Gear','+ $29.40 just now \u2022 Luxury Accessories'];
-let pi=0; setInterval(()=>{ pi=(pi+1)%pops.length; const el=$('#earningPop'); if(el){ el.style.opacity=0; setTimeout(()=>{ el.textContent=pops[pi]; el.style.opacity=1; },300); } }, 4200);
+let pi=0; setInterval(()=>{ const custom=((window.WW_CONTENT&&window.WW_CONTENT.hero_pop_notes)||'').split('\n').map(s=>s.trim()).filter(Boolean); const list=custom.length?custom:pops; pi=(pi+1)%list.length; const el=$('#earningPop'); if(el){ el.style.opacity=0; setTimeout(()=>{ el.textContent=list[pi]; el.style.opacity=1; },300); } }, 4200);
 
 // ── Multi-step Form ───────────────────────────────────────────────
 let step = 1; const totalSteps = 3;

@@ -34,6 +34,107 @@ $$('.snav button').forEach(b=> b.onclick=()=>{
 });
 $$('[data-goto]').forEach(b=> b.onclick=()=>{ const t=b.dataset.goto; const btn=$(`.snav button[data-tab="${t}"]`); if(btn) btn.click(); });
 
+// ── Popup modal editor (every Edit button opens this — no prompt() dialogs) ──
+function closeModal(){ const m=$('#wwModal'); if(m) m.remove(); document.removeEventListener('keydown', escClose); }
+function escClose(e){ if(e.key==='Escape') closeModal(); }
+// In-website confirm popup (replaces native confirm() for deletes)
+function confirmModal(title, message, confirmLabel){
+  return new Promise(resolve=>{
+    closeModal();
+    const back=document.createElement('div');
+    back.className='modal-backdrop'; back.id='wwModal';
+    back.addEventListener('click', e=>{ if(e.target===back){ closeModal(); resolve(false); } });
+    const card=document.createElement('div'); card.className='modal-card'; card.style.maxWidth='420px';
+    const head=document.createElement('div'); head.className='modal-head';
+    const h3=document.createElement('h3'); h3.textContent=title; head.appendChild(h3);
+    const x=document.createElement('button'); x.type='button'; x.className='modal-x'; x.textContent='×';
+    x.onclick=()=>{ closeModal(); resolve(false); };
+    head.appendChild(x); card.appendChild(head);
+    const body=document.createElement('div'); body.className='modal-body';
+    const p=document.createElement('p'); p.className='muted'; p.style.fontSize='13px'; p.textContent=message; body.appendChild(p);
+    const acts=document.createElement('div'); acts.className='modal-actions';
+    const cancel=document.createElement('button'); cancel.type='button'; cancel.className='btn btn-ghost btn-sm'; cancel.textContent='Cancel';
+    cancel.onclick=()=>{ closeModal(); resolve(false); };
+    const ok=document.createElement('button'); ok.type='button'; ok.className='btn btn-primary btn-sm'; ok.textContent=confirmLabel||'Delete'; ok.style.background='#ef4444';
+    ok.onclick=()=>{ closeModal(); resolve(true); };
+    acts.appendChild(cancel); acts.appendChild(ok); body.appendChild(acts);
+    card.appendChild(body); back.appendChild(card); document.body.appendChild(back);
+    const off=e=>{ if(e.key==='Escape'){ document.removeEventListener('keydown', off); resolve(false); } };
+    document.addEventListener('keydown', off);
+    setTimeout(()=>cancel.focus(),60);
+  });
+}
+/*
+  openModal({ title, subtitle, previewUrl, fields, submitLabel, onSubmit })
+  field = { key, label, type:'text'|'textarea'|'number'|'select'|'checkbox'|'url', value, placeholder, options:[{value,label}], rows, half:true }
+*/
+function openModal(opts){
+  closeModal();
+  const back=document.createElement('div');
+  back.className='modal-backdrop'; back.id='wwModal';
+  back.addEventListener('click', e=>{ if(e.target===back) closeModal(); });
+  const card=document.createElement('div'); card.className='modal-card';
+  const head=document.createElement('div'); head.className='modal-head';
+  const ht=document.createElement('div');
+  const h3=document.createElement('h3'); h3.textContent=opts.title||'Edit'; ht.appendChild(h3);
+  if(opts.subtitle){ const p=document.createElement('p'); p.className='muted'; p.style.fontSize='12px'; p.textContent=opts.subtitle; ht.appendChild(p); }
+  const x=document.createElement('button'); x.type='button'; x.className='modal-x'; x.textContent='×'; x.title='Close'; x.onclick=closeModal;
+  head.appendChild(ht); head.appendChild(x); card.appendChild(head);
+  if(opts.previewUrl){
+    const pv=document.createElement('div'); pv.className='modal-preview';
+    const isVid=/\.(mp4|webm|mov)(\?|$)/i.test(opts.previewUrl);
+    if(isVid){ const v=document.createElement('video'); v.src=opts.previewUrl; v.controls=true; v.preload='metadata'; pv.appendChild(v); }
+    else { const im=document.createElement('img'); im.src=opts.previewUrl; im.alt=''; pv.appendChild(im); }
+    card.appendChild(pv);
+  }
+  const form=document.createElement('form'); form.className='modal-body';
+  const inputs={};
+  let row=null;
+  (opts.fields||[]).forEach(f=>{
+    if(f.type==='checkbox'){
+      const lab=document.createElement('label'); lab.className='modal-check';
+      const inp=document.createElement('input'); inp.type='checkbox'; inp.checked=!!f.value;
+      const sp=document.createElement('span'); sp.textContent=f.label;
+      lab.appendChild(inp); lab.appendChild(sp); form.appendChild(lab);
+      inputs[f.key]=inp; row=null; return;
+    }
+    const lab=document.createElement('label'); lab.className='modal-field';
+    const sp=document.createElement('span'); sp.textContent=f.label; lab.appendChild(sp);
+    let inp;
+    if(f.type==='textarea'){ inp=document.createElement('textarea'); inp.rows=f.rows||3; inp.value=f.value??''; }
+    else if(f.type==='select'){
+      inp=document.createElement('select');
+      (f.options||[]).forEach(o=>{ const op=document.createElement('option'); op.value=o.value; op.textContent=o.label; inp.appendChild(op); });
+      inp.value=f.value??'';
+    }
+    else { inp=document.createElement('input'); inp.type=f.type==='number'?'number':(f.type||'text'); inp.value=f.value??''; if(f.placeholder) inp.placeholder=f.placeholder; }
+    if(f.required) inp.required=true;
+    lab.appendChild(inp); inputs[f.key]=inp;
+    if(f.half){
+      if(!row){ row=document.createElement('div'); row.className='modal-field-row'; form.appendChild(row); }
+      row.appendChild(lab);
+      if(row.children.length>=2) row=null;
+    } else { form.appendChild(lab); row=null; }
+  });
+  const err=document.createElement('div'); err.className='modal-err'; form.appendChild(err);
+  const acts=document.createElement('div'); acts.className='modal-actions';
+  const cancel=document.createElement('button'); cancel.type='button'; cancel.className='btn btn-ghost btn-sm'; cancel.textContent='Cancel'; cancel.onclick=closeModal;
+  const save=document.createElement('button'); save.type='submit'; save.className='btn btn-primary btn-sm'; save.textContent=opts.submitLabel||'Save changes';
+  acts.appendChild(cancel); acts.appendChild(save); form.appendChild(acts);
+  form.addEventListener('submit', async e=>{
+    e.preventDefault(); err.textContent=''; save.disabled=true; save.textContent='Saving…';
+    try{
+      const values={};
+      for(const [k,inp] of Object.entries(inputs)) values[k]= inp.type==='checkbox' ? inp.checked : inp.value;
+      await opts.onSubmit(values);
+      closeModal();
+    }catch(ex){ err.textContent=ex.message||'Save failed'; save.disabled=false; save.textContent=opts.submitLabel||'Save changes'; }
+  });
+  card.appendChild(form); back.appendChild(card); document.body.appendChild(back);
+  document.addEventListener('keydown', escClose);
+  const first=form.querySelector('input,textarea,select'); if(first) setTimeout(()=>first.focus(),60);
+}
+
 // Loaders
 async function loadAll(){
   loadContent(); loadMediaTab(); loadTeam(); loadSections(); loadTheme(); loadLeads(); loadAnalytics(); loadKPIs();
@@ -124,7 +225,6 @@ async function renderMedia(type){
         <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
           <button class="btn btn-ghost btn-sm" onclick="editMedia(${m.id}, '${type}')">Edit</button>
           <button class="btn btn-ghost btn-sm" onclick="togglePublish(${m.id}, ${m.published?0:1})">${m.published?'Unpublish':'Publish'}</button>
-          <button class="btn btn-ghost btn-sm" onclick="updateMediaOrder(${m.id})">Order</button>
           <button class="btn btn-ghost btn-sm" onclick="deleteMedia(${m.id})" style="color:#ef4444">Delete</button>
         </div>
       </div>
@@ -132,21 +232,36 @@ async function renderMedia(type){
   `).join('') || '<p class="muted">No items.</p>';
 }
 window.editMedia = async (id, type)=>{
-  const cap = prompt('New caption:'); if(cap===null) return;
-  const cat = prompt('New category/tag:'); if(cat===null) return;
-  const alt = prompt('New alt text:'); 
-  const url = prompt('New URL (leave blank to keep):');
-  const payload={caption:cap, category:cat||'', alt_text: alt||''};
-  if(url) payload.url=url;
-  await fetch('/api/media/'+id,{method:'PATCH',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify(payload)});
-  renderMedia(type);
+  const r = await fetch('/api/media?type='+type, {headers:authHeaders()});
+  const items = await r.json();
+  const m = items.find(x=>x.id===id);
+  if(!m) return alert('Item not found');
+  openModal({
+    title:'Edit media item', subtitle:(m.type||'')+' • '+(m.url||''), previewUrl:m.url,
+    fields:[
+      {key:'caption', label:'Caption / Quote', type:'textarea', value:m.caption||'', rows:2},
+      {key:'category', label:'Category / Tag', value:m.category||'', half:true},
+      {key:'alt_text', label:'Alt text (SEO)', value:m.alt_text||'', half:true},
+      {key:'url', label:'Replace file URL (leave blank to keep current file)', type:'url', value:'', placeholder:m.url||''},
+      {key:'type', label:'Section', type:'select', value:m.type||type, options:[
+        {value:'portfolio', label:'Portfolio — Stores Built for Conversion'},
+        {value:'sales_proof', label:'Sales Proof — Real Revenue'},
+        {value:'testimonials', label:'Testimonials — What Founders Say'},
+      ], half:true},
+      {key:'order', label:'Order (0 = first)', type:'number', value:m.order??0, half:true},
+      {key:'published', label:'Published — visible on live site', type:'checkbox', value:!!m.published},
+    ],
+    onSubmit: async v=>{
+      const payload={ caption:v.caption, category:v.category, alt_text:v.alt_text, type:v.type, order:parseInt(v.order)||0, published:v.published?1:0 };
+      if(v.url.trim()) payload.url=v.url.trim();
+      const u=await fetch('/api/media/'+id,{method:'PATCH',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify(payload)});
+      if(!u.ok){ const j=await u.json().catch(()=>({})); throw new Error(j.error||'Save failed'); }
+      renderMedia(currentMtype);
+    }
+  });
 };
 window.togglePublish=async(id, pub)=>{ await fetch('/api/media/'+id,{method:'PATCH',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify({published:pub})}); renderMedia(currentMtype); };
-window.updateMediaOrder=async(id)=>{
-  const o=prompt('New order (0 first):'); if(o===null) return;
-  await fetch('/api/media/'+id,{method:'PATCH',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify({order: parseInt(o)||0})}); renderMedia(currentMtype);
-};
-window.deleteMedia=async(id)=>{ if(!confirm('Delete?')) return; await fetch('/api/media/'+id,{method:'DELETE',headers:authHeaders()}); renderMedia(currentMtype); };
+window.deleteMedia=async(id)=>{ if(!(await confirmModal('Delete media item?','This removes it from the live site immediately. You can re-upload it anytime.','Delete'))) return; await fetch('/api/media/'+id,{method:'DELETE',headers:authHeaders()}); renderMedia(currentMtype); };
 
 $('#mediaForm').addEventListener('submit', async e=>{
   e.preventDefault();
@@ -193,20 +308,32 @@ async function loadCertificates(){
   `).join('') || '<p class="muted">No certificates yet — upload one above.</p>';
 }
 window.editCert=async(id)=>{
-  const title=prompt('Title:'); if(title===null) return;
-  const issuer=prompt('Issuer:'); if(issuer===null) return;
-  const desc=prompt('Description:'); if(desc===null) return;
-  const cat=prompt('Category/badge:'); if(cat===null) return;
-  const url=prompt('Image URL (leave blank to keep existing):');
-  const order=prompt('Order:');
-  const payload={title, issuer:issuer||'', description:desc||'', category:cat||''};
-  if(url) payload.image_url=url;
-  if(order!==null && order!=='') payload.order=parseInt(order)||0;
-  await fetch('/api/certificates/'+id,{method:'PATCH',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify(payload)});
-  loadCertificates();
+  const r=await fetch('/api/certificates',{headers:authHeaders()});
+  const items=await r.json();
+  const c=items.find(x=>x.id===id);
+  if(!c) return alert('Certificate not found');
+  openModal({
+    title:'Edit certificate / award', previewUrl:c.image_url,
+    fields:[
+      {key:'title', label:'Title *', value:c.title||'', required:true},
+      {key:'issuer', label:'Issuer', value:c.issuer||'', placeholder:'e.g. Shopify, Inc.', half:true},
+      {key:'category', label:'Category / Badge', value:c.category||'', placeholder:'e.g. Partnership, Award', half:true},
+      {key:'description', label:'Description', type:'textarea', value:c.description||'', rows:3},
+      {key:'image_url', label:'Replace image URL (leave blank to keep current image)', type:'url', value:'', placeholder:c.image_url||''},
+      {key:'order', label:'Order (0 = first)', type:'number', value:c.order??0, half:true},
+      {key:'published', label:'Published — visible on live site', type:'checkbox', value:!!c.published},
+    ],
+    onSubmit: async v=>{
+      const payload={ title:v.title, issuer:v.issuer, description:v.description, category:v.category, order:parseInt(v.order)||0, published:v.published?1:0 };
+      if(v.image_url.trim()) payload.image_url=v.image_url.trim();
+      const u=await fetch('/api/certificates/'+id,{method:'PATCH',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify(payload)});
+      if(!u.ok){ const j=await u.json().catch(()=>({})); throw new Error(j.error||'Save failed'); }
+      loadCertificates();
+    }
+  });
 };
 window.toggleCert=async(id,pub)=>{ await fetch('/api/certificates/'+id,{method:'PATCH',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify({published:pub})}); loadCertificates(); };
-window.deleteCert=async(id)=>{ if(!confirm('Delete certificate?')) return; await fetch('/api/certificates/'+id,{method:'DELETE',headers:authHeaders()}); loadCertificates(); };
+window.deleteCert=async(id)=>{ if(!(await confirmModal('Delete certificate?','This award will disappear from the homepage.','Delete'))) return; await fetch('/api/certificates/'+id,{method:'DELETE',headers:authHeaders()}); loadCertificates(); };
 const certForm=$('#certForm');
 if(certForm){
   certForm.addEventListener('submit', async e=>{
@@ -240,7 +367,6 @@ async function loadTeam(){
         <div style="display:flex;gap:6px;margin-top:6px">
           <button class="btn btn-ghost btn-sm" onclick="editTeam(${t.id})">Edit</button>
           <button class="btn btn-ghost btn-sm" onclick="toggleTeamPub(${t.id}, ${t.published?0:1})">${t.published?'Unpublish':'Publish'}</button>
-          <button class="btn btn-ghost btn-sm" onclick="updateTeamOrder(${t.id})">Order</button>
           <button class="btn btn-ghost btn-sm" onclick="deleteTeam(${t.id})" style="color:#ef4444">Delete</button>
         </div>
       </div>
@@ -248,19 +374,32 @@ async function loadTeam(){
   `).join('') || '<p class="muted">No experts yet.</p>';
 }
 window.editTeam=async(id)=>{
-  const name=prompt('Name:'); if(name===null) return;
-  const role=prompt('Role:'); if(role===null) return;
-  const cred=prompt('Credibility note:'); if(cred===null) return;
-  const social=prompt('Social URL (or blank):');
-  const photo=prompt('Photo URL (blank to keep):');
-  const payload={name, role, credibility_note:cred, social_url:social||''};
-  if(photo) payload.photo_url=photo;
-  await fetch('/api/team/'+id,{method:'PATCH',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify(payload)});
-  loadTeam();
+  const r=await fetch('/api/team',{headers:authHeaders()});
+  const items=await r.json();
+  const t=items.find(x=>x.id===id);
+  if(!t) return alert('Expert not found');
+  openModal({
+    title:'Edit expert', previewUrl:t.photo_url,
+    fields:[
+      {key:'name', label:'Name *', value:t.name||'', required:true, half:true},
+      {key:'role', label:'Role / Title', value:t.role||'', placeholder:'e.g. Head of Conversion', half:true},
+      {key:'credibility_note', label:'Credibility note', type:'textarea', value:t.credibility_note||'', rows:2, placeholder:'e.g. Led 40+ store launches'},
+      {key:'photo_url', label:'Replace photo URL (leave blank to keep current photo)', type:'url', value:'', placeholder:t.photo_url||''},
+      {key:'social_url', label:'Social / LinkedIn URL', type:'url', value:t.social_url||''},
+      {key:'order', label:'Order (0 = first)', type:'number', value:t.order??0, half:true},
+      {key:'published', label:'Published — visible on live site', type:'checkbox', value:!!t.published},
+    ],
+    onSubmit: async v=>{
+      const payload={ name:v.name, role:v.role, credibility_note:v.credibility_note, social_url:v.social_url, order:parseInt(v.order)||0, published:v.published?1:0 };
+      if(v.photo_url.trim()) payload.photo_url=v.photo_url.trim();
+      const u=await fetch('/api/team/'+id,{method:'PATCH',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify(payload)});
+      if(!u.ok){ const j=await u.json().catch(()=>({})); throw new Error(j.error||'Save failed'); }
+      loadTeam();
+    }
+  });
 };
 window.toggleTeamPub=async(id,pub)=>{ await fetch('/api/team/'+id,{method:'PATCH',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify({published:pub})}); loadTeam(); };
-window.updateTeamOrder=async(id)=>{ const o=prompt('New order:'); if(o===null) return; await fetch('/api/team/'+id,{method:'PATCH',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify({order:parseInt(o)||0})}); loadTeam(); };
-window.deleteTeam=async(id)=>{ if(!confirm('Delete expert?')) return; await fetch('/api/team/'+id,{method:'DELETE',headers:authHeaders()}); loadTeam(); };
+window.deleteTeam=async(id)=>{ if(!(await confirmModal('Delete expert?','This profile will disappear from the homepage.','Delete'))) return; await fetch('/api/team/'+id,{method:'DELETE',headers:authHeaders()}); loadTeam(); };
 $('#teamForm').addEventListener('submit', async e=>{
   e.preventDefault();
   const fd=new FormData(e.target);
@@ -289,17 +428,29 @@ async function loadProcess(){
   `).join('') || '<p class="muted">No steps.</p>';
 }
 window.editProcess=async(id)=>{
-  const step=prompt('Step number:'); if(step===null) return;
-  const title=prompt('Title:'); if(title===null) return;
-  const desc=prompt('Description:'); if(desc===null) return;
-  const order=prompt('Order:');
-  const payload={step_num: parseInt(step)||1, title, description:desc||''};
-  if(order!==null && order!=='') payload.order=parseInt(order)||0;
-  await fetch('/api/process-steps/'+id,{method:'PATCH',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify(payload)});
-  loadProcess();
+  const r=await fetch('/api/process-steps',{headers:authHeaders()});
+  const items=await r.json();
+  const s=items.find(x=>x.id===id);
+  if(!s) return alert('Step not found');
+  openModal({
+    title:'Edit process step',
+    fields:[
+      {key:'step_num', label:'Step number', type:'number', value:s.step_num??1, half:true},
+      {key:'order', label:'Order (0 = first)', type:'number', value:s.order??0, half:true},
+      {key:'title', label:'Title *', value:s.title||'', required:true},
+      {key:'description', label:'Description', type:'textarea', value:s.description||'', rows:3},
+      {key:'published', label:'Published — visible on live site', type:'checkbox', value:!!s.published},
+    ],
+    onSubmit: async v=>{
+      const payload={ step_num:parseInt(v.step_num)||1, title:v.title, description:v.description, order:parseInt(v.order)||0, published:v.published?1:0 };
+      const u=await fetch('/api/process-steps/'+id,{method:'PATCH',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify(payload)});
+      if(!u.ok){ const j=await u.json().catch(()=>({})); throw new Error(j.error||'Save failed'); }
+      loadProcess();
+    }
+  });
 };
 window.toggleProcess=async(id,pub)=>{ await fetch('/api/process-steps/'+id,{method:'PATCH',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify({published:pub})}); loadProcess(); };
-window.deleteProcess=async(id)=>{ if(!confirm('Delete step?')) return; await fetch('/api/process-steps/'+id,{method:'DELETE',headers:authHeaders()}); loadProcess(); };
+window.deleteProcess=async(id)=>{ if(!(await confirmModal('Delete step?','This step will disappear from the process section.','Delete'))) return; await fetch('/api/process-steps/'+id,{method:'DELETE',headers:authHeaders()}); loadProcess(); };
 $('#processForm').addEventListener('submit', async e=>{
   e.preventDefault();
   const fd=new FormData(e.target);
@@ -332,22 +483,38 @@ async function loadPricing(){
   }).join('') || '<p class="muted">No plans.</p>';
 }
 window.editPricing=async(id)=>{
-  const name=prompt('Name:'); if(name===null) return;
-  const price=prompt('Price:'); if(price===null) return;
-  const suffix=prompt('Price suffix (one-time, quote):'); if(suffix===null) return;
-  const desc=prompt('Description:'); if(desc===null) return;
-  const featsRaw=prompt('Features (one per line):'); if(featsRaw===null) return;
-  const feats = featsRaw.split('\n').map(s=>s.trim()).filter(Boolean);
-  const cta=prompt('CTA label:'); if(cta===null) return;
-  const link=prompt('CTA link:'); if(link===null) return;
-  const order=prompt('Order:'); const feat=confirm('Featured? OK=yes, Cancel=no');
-  const payload={name, price, price_suffix:suffix||'', description:desc||'', features: feats, cta_label:cta||'', cta_link:link||'#apply', featured: feat?1:0};
-  if(order!==null && order!=='') payload.order=parseInt(order)||0;
-  await fetch('/api/pricing-plans/'+id,{method:'PATCH',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify(payload)});
-  loadPricing();
+  const r=await fetch('/api/pricing-plans',{headers:authHeaders()});
+  const items=await r.json();
+  const p=items.find(x=>x.id===id);
+  if(!p) return alert('Plan not found');
+  const feats = Array.isArray(p.features) ? p.features.join('\n') : (p.features||'');
+  openModal({
+    title:'Edit pricing plan',
+    fields:[
+      {key:'name', label:'Name *', value:p.name||'', required:true, half:true},
+      {key:'price', label:'Price *', value:p.price||'', required:true, placeholder:'e.g. $450 or Custom', half:true},
+      {key:'price_suffix', label:'Price suffix', value:p.price_suffix||'', placeholder:'e.g. one-time, quote', half:true},
+      {key:'order', label:'Order (0 = first)', type:'number', value:p.order??0, half:true},
+      {key:'description', label:'Description', type:'textarea', value:p.description||'', rows:2},
+      {key:'features', label:'Features (one per line)', type:'textarea', value:feats, rows:5},
+      {key:'cta_label', label:'CTA button label', value:p.cta_label||'', half:true},
+      {key:'cta_link', label:'CTA link', value:p.cta_link||'#apply', half:true},
+      {key:'featured', label:'Featured — highlighted as Most Popular', type:'checkbox', value:!!p.featured},
+      {key:'published', label:'Published — visible on live site', type:'checkbox', value:!!p.published},
+    ],
+    onSubmit: async v=>{
+      const payload={ name:v.name, price:v.price, price_suffix:v.price_suffix, description:v.description,
+        features:v.features.split('\n').map(s=>s.trim()).filter(Boolean),
+        cta_label:v.cta_label, cta_link:v.cta_link||'#apply', order:parseInt(v.order)||0,
+        featured:v.featured?1:0, published:v.published?1:0 };
+      const u=await fetch('/api/pricing-plans/'+id,{method:'PATCH',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify(payload)});
+      if(!u.ok){ const j=await u.json().catch(()=>({})); throw new Error(j.error||'Save failed'); }
+      loadPricing();
+    }
+  });
 };
 window.togglePricing=async(id,pub)=>{ await fetch('/api/pricing-plans/'+id,{method:'PATCH',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify({published:pub})}); loadPricing(); };
-window.deletePricing=async(id)=>{ if(!confirm('Delete plan?')) return; await fetch('/api/pricing-plans/'+id,{method:'DELETE',headers:authHeaders()}); loadPricing(); };
+window.deletePricing=async(id)=>{ if(!(await confirmModal('Delete pricing plan?','This plan and its checkout option will disappear from the site.','Delete'))) return; await fetch('/api/pricing-plans/'+id,{method:'DELETE',headers:authHeaders()}); loadPricing(); };
 $('#pricingForm').addEventListener('submit', async e=>{
   e.preventDefault();
   const fd=new FormData(e.target);
@@ -377,16 +544,28 @@ async function loadFaqs(){
   `).join('') || '<p class="muted">No FAQs.</p>';
 }
 window.editFaq=async(id)=>{
-  const q=prompt('Question:'); if(q===null) return;
-  const a=prompt('Answer:'); if(a===null) return;
-  const o=prompt('Order:');
-  const payload={question:q, answer:a};
-  if(o!==null && o!=='') payload.order=parseInt(o)||0;
-  await fetch('/api/faqs/'+id,{method:'PATCH',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify(payload)});
-  loadFaqs();
+  const r=await fetch('/api/faqs',{headers:authHeaders()});
+  const items=await r.json();
+  const f=items.find(x=>x.id===id);
+  if(!f) return alert('FAQ not found');
+  openModal({
+    title:'Edit FAQ',
+    fields:[
+      {key:'question', label:'Question *', type:'textarea', value:f.question||'', rows:2, required:true},
+      {key:'answer', label:'Answer *', type:'textarea', value:f.answer||'', rows:4, required:true},
+      {key:'order', label:'Order (0 = first)', type:'number', value:f.order??0, half:true},
+      {key:'published', label:'Published — visible on live site', type:'checkbox', value:!!f.published},
+    ],
+    onSubmit: async v=>{
+      const payload={ question:v.question, answer:v.answer, order:parseInt(v.order)||0, published:v.published?1:0 };
+      const u=await fetch('/api/faqs/'+id,{method:'PATCH',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify(payload)});
+      if(!u.ok){ const j=await u.json().catch(()=>({})); throw new Error(j.error||'Save failed'); }
+      loadFaqs();
+    }
+  });
 };
 window.toggleFaq=async(id,pub)=>{ await fetch('/api/faqs/'+id,{method:'PATCH',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify({published:pub})}); loadFaqs(); };
-window.deleteFaq=async(id)=>{ if(!confirm('Delete FAQ?')) return; await fetch('/api/faqs/'+id,{method:'DELETE',headers:authHeaders()}); loadFaqs(); };
+window.deleteFaq=async(id)=>{ if(!(await confirmModal('Delete FAQ?','This question will disappear from the homepage.','Delete'))) return; await fetch('/api/faqs/'+id,{method:'DELETE',headers:authHeaders()}); loadFaqs(); };
 $('#faqForm').addEventListener('submit', async e=>{
   e.preventDefault();
   const fd=new FormData(e.target);
@@ -421,7 +600,7 @@ async function loadBranding(){
 }
 window.removeBranding = async (type)=>{
   const key = type==='logo' ? 'site_logo' : 'site_favicon';
-  if(!confirm('Remove '+type+'?')) return;
+  if(!(await confirmModal('Remove '+type+'?','The text logo will be shown instead. You can re-upload anytime.','Remove'))) return;
   await fetch('/api/content/'+key,{method:'PUT',headers:{'Content-Type':'application/json',...authHeaders()},body:JSON.stringify({value:''})});
   loadBranding();
 };
