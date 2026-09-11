@@ -26,6 +26,19 @@ $('#loginForm').addEventListener('submit', async e=>{
   checkAuth();
 });
 $('#logoutBtn').onclick = async()=>{ await fetch('/api/auth/logout',{method:'POST'}); localStorage.removeItem('ww_token'); token=''; showLogin(); };
+const restoreBtn=$('#restoreBackupBtn');
+if(restoreBtn) restoreBtn.onclick = async()=>{
+  if(!(await confirmModal('Restore from Postgres backup?','This overwrites everything on this server (text, images, videos, team, pricing) with the saved backup. Use it when the site shows stale content after a deploy.','Restore now'))) return;
+  restoreBtn.disabled=true; restoreBtn.textContent='Restoring… (takes ~2 min for videos)';
+  try{
+    const r=await fetch('/api/backup/restore',{method:'POST',headers:authHeaders()});
+    const j=await r.json();
+    if(!r.ok) throw new Error(j.error||'Restore failed');
+    alert(`Restored ${j.tables||0} rows and ${j.files||0} files. Reload the live site to verify.`);
+    loadAll();
+  }catch(e){ alert(e.message); }
+  restoreBtn.disabled=false; restoreBtn.textContent='Restore from Postgres backup';
+};
 
 // Tab nav
 $$('.snav button').forEach(b=> b.onclick=()=>{

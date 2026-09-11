@@ -925,6 +925,15 @@ app.post('/api/backup/now', authMiddleware, async (req, res) => {
     res.json({ ok: true, ...r });
   } catch (e) { res.status(500).json({ error: e.message }); }
 });
+// Force-pull Postgres snapshot into this server (overwrites local). Use after
+// a deploy when the disk still holds stale data. Set BACKUP_PAUSED=1 first so
+// auto-backup can't push the stale data back before you click restore.
+app.post('/api/backup/restore', authMiddleware, async (req, res) => {
+  try {
+    const r = await pgBackup.restoreFromPostgres(db, uploadsDir);
+    res.json({ ok: true, ...r });
+  } catch (e) { res.status(500).json({ error: e.message }); }
+});
 
 // ── Auth ──────────────────────────────────────────────────────────
 app.post('/api/auth/login', loginLimiter, (req, res) => {
