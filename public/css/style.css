@@ -243,37 +243,8 @@ html.motion-on .reveal{opacity:0;transform:translateY(16px) scale(.98)}
 .orb-c{width:300px;height:300px;left:34%;bottom:-160px;background:radial-gradient(circle,rgba(201,162,39,.32),transparent 70%);animation-delay:-10s}
 @keyframes orbDrift{from{transform:translate(0,0) scale(1)}to{transform:translate(56px,-36px) scale(1.12)}}
 
-/* ── Professional 3D slides (featured showcase) ── */
-.slides{position:relative;margin-bottom:26px}
-.slide-viewport{overflow:hidden;perspective:1200px;border-radius:18px;padding:10px 0 4px}
-.slide-track{display:flex;gap:18px;align-items:stretch;transition:transform .6s cubic-bezier(.22,1,.36,1);transform-style:preserve-3d;will-change:transform}
-.slide{flex:0 0 min(540px,80%);background:#fff;border:1px solid var(--border);border-radius:16px;overflow:hidden;box-shadow:var(--shadow);transition:transform .6s cubic-bezier(.22,1,.36,1),opacity .6s,filter .6s;transform-origin:center center}
-.slide img{width:100%;aspect-ratio:16/9;object-fit:cover;display:block;background:#f3f3f3}
-.slide-body{padding:14px 16px}
-.slide-body h3{font-size:15px;font-weight:800;margin-bottom:2px}
-.slide-body p{font-size:12px;color:var(--muted)}
-.slide .tag{position:absolute;top:12px;left:12px}
-.slide-imgwrap{position:relative}
-.slide.is-active{transform:scale(1) rotateY(0);opacity:1}
-.slide.is-side{transform:scale(.88) rotateY(0);opacity:.85}
-.slide.is-side.slide-before{transform:scale(.88) rotateY(18deg)}
-.slide.is-side.slide-after{transform:scale(.88) rotateY(-18deg)}
-.slide.is-far{transform:scale(.8);opacity:.45;filter:saturate(.85)}
-.slide-arrow{position:absolute;top:38%;width:42px;height:42px;border-radius:50%;border:1px solid var(--border);background:rgba(255,255,255,.92);backdrop-filter:blur(8px);font-size:22px;line-height:1;cursor:pointer;box-shadow:var(--shadow);z-index:3;transition:all .25s;color:var(--ink)}
-.slide-arrow:hover{background:var(--ink);color:#fff;border-color:var(--ink);transform:scale(1.06)}
-.slide-arrow.prev{left:-8px}
-.slide-arrow.next{right:-8px}
-.slide-dots{display:flex;gap:8px;justify-content:center;margin-top:14px}
-.slide-dots button{width:26px;height:5px;border-radius:999px;border:none;background:var(--border);cursor:pointer;transition:all .3s;padding:0}
-.slide-dots button.active{background:var(--accent);width:38px}
-@media(max-width:640px){
-  .slide-arrow.prev{left:2px}
-  .slide-arrow.next{right:2px}
-  .slide{flex-basis:86%}
-}
 @media(prefers-reduced-motion:reduce){
   .orb{animation:none}
-  .slide-track,.slide{transition:none}
 }
 
 /* ══ 3D everywhere: hero → footer ══ */
@@ -352,8 +323,7 @@ html.motion-on .d3{opacity:0;transform:perspective(900px) rotateX(14deg) transla
 /* Magnetic buttons */
 .btn{transition:transform .18s ease-out,box-shadow .25s,background .2s}
 
-/* Slides: distant slides fall out of focus for real depth */
-.slide.is-far{transform:scale(.8);opacity:.4;filter:saturate(.85) blur(2px)}
+
 
 @media(prefers-reduced-motion:reduce){
   .tilt::after{display:none}
