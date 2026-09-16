@@ -536,3 +536,98 @@
   setTimeout(() => { stagger(); bindAllTilt(); watchReveals(); }, 1500);
   setTimeout(() => { stagger(); bindAllTilt(); watchReveals(); }, 3500);
 })();
+
+/* ── Full preview popup: one section → complete detail view ──
+   main.js hands every gallery click here (window.WW_PREVIEW.open).
+   Items + siblings come from the same /api/media data — no duplication. */
+window.WW_PREVIEW = (function () {
+  'use strict';
+  const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const $ = id => document.getElementById(id);
+  let cache = null, list = [], idx = 0;
+
+  async function all() {
+    if (cache) return cache;
+    try {
+      const r = await fetch('/api/media');
+      cache = await r.json();
+    } catch { cache = []; }
+    return cache;
+  }
+  function esc(s) { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; }
+
+  function render() {
+    const m = list[idx];
+    if (!m) return;
+    const card = $('previewCard');
+    $('previewImg').src = m.url;
+    $('previewImg').alt = m.alt_text || m.caption || 'Preview';
+    $('previewTag').textContent = m.category || 'Featured';
+    $('previewTitle').textContent = m.caption || 'Untitled';
+    $('previewDesc').textContent = m.alt_text || '';
+    $('previewDesc').style.display = m.alt_text ? '' : 'none';
+    $('previewCount').textContent = `${idx + 1} / ${list.length}`;
+    const multi = list.length > 1;
+    $('previewPrev').style.display = multi ? '' : 'none';
+    $('previewNext').style.display = multi ? '' : 'none';
+    if (!reduceMotion && card) {
+      card.classList.remove('swap');
+      void card.offsetWidth;
+      card.classList.add('swap');
+    }
+    try { if (typeof track === 'function') track('gallery_open', m.url); } catch {}
+  }
+  function openModal() {
+    const modal = $('previewModal');
+    if (!modal) return;
+    modal.classList.add('open');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+  function close() {
+    const modal = $('previewModal');
+    if (!modal) return;
+    modal.classList.remove('open');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+  }
+  function go(n) {
+    if (!list.length) return;
+    idx = (n + list.length) % list.length;
+    render();
+  }
+  async function open(src, alt) {
+    const items = await all();
+    const cur = items.find(m => m.url === src);
+    list = cur ? items.filter(m => m.type === cur.type) : items.slice();
+    idx = Math.max(0, list.findIndex(m => m.url === src));
+    if (!list.length) { list = [{ url: src, caption: alt || '', category: '', alt_text: '' }]; idx = 0; }
+    render();
+    openModal();
+  }
+  function wire() {
+    if ($('previewClose')) $('previewClose').onclick = close;
+    if ($('previewBackdrop')) $('previewBackdrop').onclick = close;
+    if ($('previewPrev')) $('previewPrev').onclick = e => { e.stopPropagation(); go(idx - 1); };
+    if ($('previewNext')) $('previewNext').onclick = e => { e.stopPropagation(); go(idx + 1); };
+    document.addEventListener('keydown', e => {
+      const modal = $('previewModal');
+      if (!modal || !modal.classList.contains('open')) return;
+      if (e.key === 'Escape') close();
+      if (e.key === 'ArrowLeft') go(idx - 1);
+      if (e.key === 'ArrowRight') go(idx + 1);
+    });
+    let tx = 0;
+    const card = $('previewCard');
+    if (card) {
+      card.addEventListener('touchstart', e => { tx = e.touches[0].clientX; }, { passive: true });
+      card.addEventListener('touchend', e => {
+        const dx = e.changedTouches[0].clientX - tx;
+        if (Math.abs(dx) > 48) go(idx + (dx < 0 ? 1 : -1));
+      }, { passive: true });
+    }
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire);
+  else wire();
+  return { open, close };
+})();

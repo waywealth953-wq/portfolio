@@ -359,6 +359,40 @@ html.motion-on .d3{opacity:0;transform:perspective(900px) rotateX(14deg) transla
   .tilt::after{display:none}
 }
 
+/* ══ Full preview popup (one portfolio → full detail view) ══ */
+.preview-modal{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:22px}
+.preview-modal.open{display:flex}
+.preview-backdrop{position:absolute;inset:0;background:rgba(10,10,12,.78);backdrop-filter:blur(10px)}
+.preview-card{position:relative;display:grid;grid-template-columns:1.25fr 1fr;width:min(920px,94vw);max-height:88vh;background:#fff;border-radius:20px;overflow:hidden;box-shadow:0 40px 100px rgba(0,0,0,.5);transform-style:preserve-3d}
+.preview-modal.open .preview-card{animation:previewIn .38s cubic-bezier(.22,1,.36,1)}
+@keyframes previewIn{from{opacity:0;transform:perspective(1100px) rotateX(10deg) translateY(26px) scale(.96)}to{opacity:1;transform:none}}
+.preview-card.swap .preview-media img,.preview-card.swap .preview-body{animation:previewSwap .3s cubic-bezier(.22,1,.36,1)}
+@keyframes previewSwap{from{opacity:0;transform:translateX(18px)}to{opacity:1;transform:none}}
+.preview-media{position:relative;background:#111;min-height:280px;display:flex}
+.preview-media img{width:100%;height:100%;max-height:88vh;object-fit:cover}
+.preview-media .tag{position:absolute;top:14px;left:14px}
+.preview-body{padding:28px 26px;display:flex;flex-direction:column;justify-content:center;gap:10px}
+.preview-body h3{font-size:clamp(19px,2.6vw,25px);font-weight:800;letter-spacing:-.02em;line-height:1.2}
+.preview-body p{font-size:14px;color:var(--muted);line-height:1.7}
+.preview-foot{margin-top:8px;display:flex;align-items:center;gap:10px}
+.preview-count{font-size:12px;font-weight:700;background:var(--ink);color:#fff;padding:5px 12px;border-radius:999px;font-variant-numeric:tabular-nums}
+.preview-close{position:absolute;top:12px;right:12px;width:38px;height:38px;border-radius:50%;border:none;background:rgba(18,18,18,.65);color:#fff;font-size:20px;line-height:1;cursor:pointer;z-index:5;transition:all .25s;backdrop-filter:blur(6px)}
+.preview-close:hover{background:var(--ink);transform:scale(1.08)}
+.preview-arrow{position:absolute;top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:1px solid var(--border);background:rgba(255,255,255,.94);font-size:22px;line-height:1;cursor:pointer;z-index:5;box-shadow:var(--shadow);transition:all .25s;color:var(--ink)}
+.preview-arrow:hover{background:var(--ink);color:#fff;border-color:var(--ink)}
+.preview-arrow.prev{left:-22px}
+.preview-arrow.next{right:-22px}
+@media(max-width:760px){
+  .preview-card{grid-template-columns:1fr;max-height:92vh;overflow-y:auto}
+  .preview-media img{max-height:44vh}
+  .preview-arrow.prev{left:8px}
+  .preview-arrow.next{right:8px}
+  .preview-arrow{top:24%}
+}
+@media(prefers-reduced-motion:reduce){
+  .preview-modal.open .preview-card,.preview-card.swap .preview-media img,.preview-card.swap .preview-body{animation:none}
+}
+
 /* ══ Modern vibrant portfolio layer (visual only — no content changed) ══ */
 html{scroll-padding-top:84px}
 

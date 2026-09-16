@@ -40,7 +40,11 @@ const lb = $('#lightbox'), lbImg = $('#lbImg');
 $('#lbClose').onclick = () => lb.classList.remove('open');
 lb.onclick = e => { if(e.target===lb) lb.classList.remove('open'); };
 addEventListener('keydown', e => { if(e.key==='Escape') lb.classList.remove('open'); });
-function openLb(src, alt){ lbImg.src=src; lbImg.alt=alt||''; lb.classList.add('open'); track('gallery_open', src); }
+function openLb(src, alt){
+  // Full preview popup (motion.js) when available; plain lightbox fallback otherwise
+  if (window.WW_PREVIEW) { window.WW_PREVIEW.open(src, alt); track('gallery_open', src); return; }
+  lbImg.src=src; lbImg.alt=alt||''; lb.classList.add('open'); track('gallery_open', src);
+}
 
 // Fetch content, stats, media, team
 async function loadDynamic(){
