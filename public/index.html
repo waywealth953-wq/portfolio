@@ -252,6 +252,20 @@
   </div>
 </footer>
 
+<div class="preview-modal" id="previewModal" role="dialog" aria-modal="true" aria-label="Store preview" aria-hidden="true">
+  <div class="preview-backdrop" id="previewBackdrop"></div>
+  <div class="preview-card" id="previewCard">
+    <button class="preview-close" id="previewClose" aria-label="Close preview">×</button>
+    <button class="preview-arrow prev" id="previewPrev" aria-label="Previous item">‹</button>
+    <div class="preview-media"><img id="previewImg" src="" alt=""><span class="tag" id="previewTag"></span></div>
+    <div class="preview-body">
+      <h3 id="previewTitle"></h3>
+      <p id="previewDesc"></p>
+      <div class="preview-foot"><span class="preview-count" id="previewCount"></span></div>
+    </div>
+    <button class="preview-arrow next" id="previewNext" aria-label="Next item">›</button>
+  </div>
+</div>
 <div class="lightbox" id="lightbox"><button class="lightbox-close" id="lbClose">×</button><img id="lbImg" src="" alt=""></div>
 <button id="toTop" aria-label="Back to top"></button>
 
