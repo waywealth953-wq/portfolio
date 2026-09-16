@@ -1,6 +1,9 @@
 /* WAYWEALTH — Modern motion layer v3: smooth, vibrant, 3D */
 (function () {
   'use strict';
+  // Signal that motion is active — CSS only hides pre-reveal elements when
+  // this class exists, so content can NEVER be stuck invisible (no-JS safe).
+  document.documentElement.classList.add('motion-on');
   const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const finePointer = matchMedia('(hover: hover) and (pointer: fine)').matches;
   const $ = (s, c) => (c || document).querySelector(s);
@@ -46,8 +49,8 @@
     es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); e.target.classList.add('in3d'); revealObs.unobserve(e.target); } });
   }, { threshold: 0.12 }) : null;
   function watchReveals() {
-    if (reduceMotion) { $$('.reveal:not(.in)').forEach(el => { el.classList.add('in'); el.classList.add('in3d'); }); return; }
-    if (!revealObs) return;
+    // No observer (old browser) or reduced motion: show everything immediately.
+    if (reduceMotion || !revealObs) { $$('.reveal:not(.in)').forEach(el => { el.classList.add('in'); el.classList.add('in3d'); }); return; }
     $$('.reveal:not(.in)').forEach(el => {
       if (el._rob) return;
       el._rob = true;
@@ -71,6 +74,8 @@
       const r = el.getBoundingClientRect();
       const px = (e.clientX - r.left) / r.width - 0.5;
       const py = (e.clientY - r.top) / r.height - 0.5;
+      el.style.setProperty('--mx', ((px + 0.5) * 100).toFixed(1) + '%');
+      el.style.setProperty('--my', ((py + 0.5) * 100).toFixed(1) + '%');
       if (raf) cancelAnimationFrame(raf);
       raf = requestAnimationFrame(() => {
         el.style.transform = `rotateY(${px * strength * 2}deg) rotateX(${-py * strength * 2}deg) translateZ(6px)`;
@@ -255,10 +260,52 @@
         ctx.fillStyle = `rgba(${p.c},${a.toFixed(3)})`;
         ctx.fill();
       }
+      drawShape();
       raf = requestAnimationFrame(frame);
     }
     function play() { if (!running) { running = true; frame(); } }
     function stop() { running = false; cancelAnimationFrame(raf); }
+    /* True-3D wireframe icosahedron: perspective-projected, depth-shaded */
+    const PHI = (1 + Math.sqrt(5)) / 2;
+    const V3 = [[-1, PHI, 0], [1, PHI, 0], [-1, -PHI, 0], [1, -PHI, 0], [0, -1, PHI], [0, 1, PHI], [0, -1, -PHI], [0, 1, -PHI], [PHI, 0, -1], [PHI, 0, 1], [-PHI, 0, -1], [-PHI, 0, 1]];
+    const E3 = [];
+    for (let i = 0; i < V3.length; i++) for (let j = i + 1; j < V3.length; j++) {
+      const dx = V3[i][0] - V3[j][0], dy = V3[i][1] - V3[j][1], dz = V3[i][2] - V3[j][2];
+      if (Math.abs(Math.hypot(dx, dy, dz) - 2) < 0.01) E3.push([i, j]);
+    }
+    let shapeAng = 0;
+    function drawShape() {
+      if (W < 10) return;
+      shapeAng += 0.0038;
+      const narrow = W < 720;
+      const ax = 0.55 + my * 0.9, ay = shapeAng + mx * 1.4;
+      const cxA = Math.cos(ax), sxA = Math.sin(ax), cyA = Math.cos(ay), syA = Math.sin(ay);
+      const R = Math.min(W, H) * 0.17;
+      const ox = narrow ? W * 0.5 : W * 0.74, oy = H * 0.46;
+      const DIST = 5, fade = narrow ? 0.45 : 0.8;
+      const P = V3.map(v => {
+        const x1 = v[0] * cyA + (v[1] * sxA + v[2] * cxA) * syA;
+        const y1 = v[1] * cxA - v[2] * sxA;
+        const z1 = -v[0] * syA + (v[1] * sxA + v[2] * cxA) * cyA;
+        const s = DIST / (DIST + z1);
+        return [ox + x1 * R * s, oy + y1 * R * s, s];
+      });
+      ctx.lineWidth = 1;
+      for (const [a, b] of E3) {
+        const s = (P[a][2] + P[b][2]) / 2;
+        ctx.beginPath();
+        ctx.moveTo(P[a][0], P[a][1]);
+        ctx.lineTo(P[b][0], P[b][1]);
+        ctx.strokeStyle = `rgba(15,157,88,${(0.34 * s * fade).toFixed(3)})`;
+        ctx.stroke();
+      }
+      for (const p of P) {
+        ctx.beginPath();
+        ctx.arc(p[0], p[1], Math.max(0.6, 1.7 * p[2] * 0.6), 0, 7);
+        ctx.fillStyle = `rgba(201,162,39,${(0.5 * p[2] * fade).toFixed(3)})`;
+        ctx.fill();
+      }
+    }
     resize();
     addEventListener('resize', resize);
     if (hero) {
@@ -391,6 +438,59 @@
         g.style.transform = `translateY(${(scrollY * 0.08).toFixed(1)}px)`;
       });
     }, { passive: true });
+  })();
+
+  /* ── Magnetic 3D buttons: pulled toward the cursor ── */
+  (function magnetic() {
+    if (!finePointer || reduceMotion) return;
+    $$('.btn').forEach(b => {
+      let raf = 0;
+      b.addEventListener('mousemove', e => {
+        const r = b.getBoundingClientRect();
+        const dx = e.clientX - (r.left + r.width / 2);
+        const dy = e.clientY - (r.top + r.height / 2);
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(() => {
+          b.style.transform = `translate(${(dx * 0.12).toFixed(1)}px,${(dy * 0.18).toFixed(1)}px)`;
+          b.style.boxShadow = '0 10px 26px rgba(18,18,18,.20)';
+        });
+      });
+      b.addEventListener('mouseleave', () => {
+        cancelAnimationFrame(raf);
+        b.style.transform = '';
+        b.style.boxShadow = '';
+      });
+    });
+  })();
+
+  /* ── Layered hero parallax: each line floats at its own depth ── */
+  (function heroDepth() {
+    const hero = $('#heroSec');
+    if (!hero || !finePointer || reduceMotion) return;
+    const layers = $$('.hero-grid > div:first-child > *').map((el, i) => ({ el, d: (i + 1) * 7 }));
+    if (!layers.length) return;
+    let tx = 0, ty = 0, x = 0, y = 0, visible = false;
+    hero.addEventListener('mousemove', e => {
+      const r = hero.getBoundingClientRect();
+      tx = (e.clientX - r.left) / r.width - 0.5;
+      ty = (e.clientY - r.top) / r.height - 0.5;
+    }, { passive: true });
+    hero.addEventListener('mouseleave', () => { tx = 0; ty = 0; });
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(es => { visible = es[0].isIntersecting; }).observe(hero);
+    } else visible = true;
+    (function loop() {
+      requestAnimationFrame(loop);
+      if (!visible || document.hidden) return;
+      x += (tx - x) * 0.07; y += (ty - y) * 0.07;
+      if (Math.abs(x) < 0.0004 && Math.abs(y) < 0.0004 && tx === 0 && ty === 0) {
+        layers.forEach(l => { if (l.el.style.transform) l.el.style.transform = ''; });
+        return;
+      }
+      layers.forEach(l => {
+        l.el.style.transform = `translate3d(${(x * l.d).toFixed(1)}px,${(y * l.d).toFixed(1)}px,0)`;
+      });
+    })();
   })();
 
   stagger(); bindAllTilt(); watchReveals();

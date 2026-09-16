@@ -192,7 +192,9 @@ img{max-width:100%;display:block}
 @media(max-width:700px){.footer-grid{grid-template-columns:1fr}}
 
 /* Animations – Intersection Observer */
-.reveal{opacity:0;transform:translateY(16px) scale(.98);transition:opacity .5s, transform .5s}
+.reveal{transition:opacity .5s, transform .5s}
+/* Hidden pre-reveal ONLY when motion.js is running — no JS, no hiding, ever */
+html.motion-on .reveal{opacity:0;transform:translateY(16px) scale(.98)}
 .reveal.in{opacity:1;transform:none}
 @media(prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none} .mockup,.earning-pop,.marquee{animation:none}}
 
@@ -275,7 +277,8 @@ img{max-width:100%;display:block}
 
 /* ══ 3D everywhere: hero → footer ══ */
 /* 3D entrance (JS adds .d3 + .in3d alongside .reveal) */
-.d3{opacity:0;transform:perspective(900px) rotateX(14deg) translateY(30px);transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
+.d3{transition:opacity .7s cubic-bezier(.22,1,.36,1),transform .7s cubic-bezier(.22,1,.36,1)}
+html.motion-on .d3{opacity:0;transform:perspective(900px) rotateX(14deg) translateY(30px)}
 .d3.in3d{opacity:1;transform:perspective(900px) rotateX(0) translateY(0)}
 
 /* Page-wide depth glow (parallax via JS) */
@@ -330,4 +333,27 @@ img{max-width:100%;display:block}
   .step.in .step-num,.lightbox.open img{animation:none}
   .faq-a{transform:none;opacity:1}
   .page-glow{display:none}
+}
+
+/* ══ Advanced 3D motion ══ */
+/* Specular glare that follows the cursor across every 3D-tilted surface */
+.tilt{position:relative}
+.tilt::after{content:'';position:absolute;inset:0;border-radius:inherit;background:radial-gradient(420px circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,.30),transparent 55%);opacity:0;transition:opacity .35s;pointer-events:none;z-index:3}
+.tilt:hover::after{opacity:1}
+.expert-card{position:relative}
+
+/* Hero headline 3D extrude */
+.hero h1 em{text-shadow:0 1px 0 rgba(15,157,88,.35),0 2px 0 rgba(15,157,88,.22),0 3px 0 rgba(15,157,88,.12),0 12px 26px rgba(15,157,88,.28)}
+
+/* Hero parallax layers (depth offsets driven by JS) */
+.hero-grid > div:first-child > *{will-change:transform}
+
+/* Magnetic buttons */
+.btn{transition:transform .18s ease-out,box-shadow .25s,background .2s}
+
+/* Slides: distant slides fall out of focus for real depth */
+.slide.is-far{transform:scale(.8);opacity:.4;filter:saturate(.85) blur(2px)}
+
+@media(prefers-reduced-motion:reduce){
+  .tilt::after{display:none}
 }

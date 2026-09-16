@@ -7,7 +7,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node server.js",
-    "seed": "node seed.js"
+    "seed": "node seed.js",
+    "autopush": "node scripts/auto-push.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
