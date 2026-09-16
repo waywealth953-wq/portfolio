@@ -36,6 +36,23 @@
       el.classList.add('reveal');
       el.dataset.delay = String((i % 4) + 1);
     });
+    watchReveals();
+  }
+
+  /* ── Reveal observer: motion.js tags late-rendered cards with .reveal
+        AFTER main.js already ran its own observer pass — without watching
+        them here, tagged cards stay at opacity:0 (invisible but clickable). ── */
+  const revealObs = ('IntersectionObserver' in window && !reduceMotion) ? new IntersectionObserver(es => {
+    es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); revealObs.unobserve(e.target); } });
+  }, { threshold: 0.12 }) : null;
+  function watchReveals() {
+    if (reduceMotion) { $$('.reveal:not(.in)').forEach(el => el.classList.add('in')); return; }
+    if (!revealObs) return;
+    $$('.reveal:not(.in)').forEach(el => {
+      if (el._rob) return;
+      el._rob = true;
+      revealObs.observe(el);
+    });
   }
 
   /* ── 3D tilt ── */
@@ -194,8 +211,8 @@
     Object.keys(map).forEach(id => { const s = document.getElementById(id); if (s) obs.observe(s); });
   })();
 
-  stagger(); bindAllTilt();
+  stagger(); bindAllTilt(); watchReveals();
   // re-run after dynamic content arrives
-  setTimeout(() => { stagger(); bindAllTilt(); }, 1500);
-  setTimeout(() => { stagger(); bindAllTilt(); }, 3500);
+  setTimeout(() => { stagger(); bindAllTilt(); watchReveals(); }, 1500);
+  setTimeout(() => { stagger(); bindAllTilt(); watchReveals(); }, 3500);
 })();
