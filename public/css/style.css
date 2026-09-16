@@ -357,3 +357,48 @@ html.motion-on .d3{opacity:0;transform:perspective(900px) rotateX(14deg) transla
 @media(prefers-reduced-motion:reduce){
   .tilt::after{display:none}
 }
+
+/* ══ Modern vibrant portfolio layer (visual only — no content changed) ══ */
+html{scroll-padding-top:84px}
+
+/* Vibrant primary buttons: flowing gradient + shine sweep */
+.btn-primary{background:linear-gradient(135deg,#0F9D58,#06B6D4 55%,#7C3AED 130%);background-size:160% 160%;position:relative;overflow:hidden}
+.btn-primary:hover{background-position:90% 50%}
+.btn-primary::before{content:'';position:absolute;top:0;left:-80%;width:50%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.45),transparent);transform:skewX(-20deg);transition:left .5s;pointer-events:none}
+.btn-primary:hover::before{left:130%}
+
+/* Section headline accent bar */
+.section-head h2{position:relative;padding-bottom:14px}
+.section-head h2::after{content:'';position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:64px;height:4px;border-radius:999px;background:linear-gradient(90deg,#0F9D58,#06B6D4,#7C3AED,#C9A227)}
+
+/* Card gradient top-accent that grows on hover */
+.card::before{content:'';position:absolute;top:0;left:12%;right:12%;height:3px;border-radius:0 0 6px 6px;background:linear-gradient(90deg,#0F9D58,#06B6D4,#7C3AED);opacity:0;transition:opacity .3s,left .3s,right .3s;z-index:2}
+.card:hover::before{opacity:1;left:0;right:0}
+
+/* Vibrant active filter + featured markers */
+.chip.active{background:linear-gradient(135deg,#121212,#2b2350);border-color:#121212}
+.step-num{background:linear-gradient(135deg,#0F9D58,#06B6D4 120%)}
+.featured-badge{background:linear-gradient(135deg,#C9A227,#F5D67B);color:#121212}
+.marquee-item strong{background:linear-gradient(90deg,#F5D67B,#A3E635);-webkit-background-clip:text;background-clip:text;color:transparent}
+
+/* Scroll progress (empty chrome — no text) */
+#scrollProgress{position:fixed;top:0;left:0;height:3px;width:0;z-index:200;background:linear-gradient(90deg,#0F9D58,#06B6D4,#7C3AED);box-shadow:0 0 12px rgba(124,58,237,.5);border-radius:0 4px 4px 0;pointer-events:none}
+
+/* Back-to-top (CSS triangle — no text) */
+#toTop{position:fixed;right:20px;bottom:20px;width:44px;height:44px;border-radius:50%;border:none;background:linear-gradient(135deg,#0F9D58,#06B6D4 130%);cursor:pointer;box-shadow:0 12px 30px rgba(18,18,18,.25);opacity:0;pointer-events:none;transform:translateY(12px);transition:all .3s;z-index:90}
+#toTop::before{content:'';position:absolute;left:50%;top:50%;transform:translate(-50%,-30%);border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:11px solid #fff}
+#toTop.show{opacity:1;pointer-events:auto;transform:none}
+#toTop:hover{transform:translateY(-3px)}
+
+/* Active nav link (scrollspy) */
+.nav a.active{color:var(--ink)}
+.nav a{transition:color .25s}
+.nav a.active::after{width:100%}
+
+/* Vibrant focus rings */
+a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid #7C3AED;outline-offset:2px}
+
+@media(prefers-reduced-motion:reduce){
+  .btn-primary::before{display:none}
+  #toTop{transition:none}
+}
