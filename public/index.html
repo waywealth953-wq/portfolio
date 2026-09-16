@@ -39,6 +39,7 @@
 
 <!-- Hero -->
 <section class="hero" id="heroSec">
+  <div class="hero-bg" aria-hidden="true"><canvas id="bg3d"></canvas><span class="orb orb-a"></span><span class="orb orb-b"></span><span class="orb orb-c"></span></div>
   <div class="container hero-grid">
     <div class="reveal">
       <div class="badge" id="heroBadge"><span class="badge-dot"></span> <span id="badgeText">● Only 7 launch slots left this month</span></div>
@@ -57,7 +58,7 @@
         <span id="heroTrustLine">Trusted by 180+ founders • 4.9/5 average</span>
       </div>
     </div>
-    <div class="mockup reveal">
+    <div class="tilt-stage reveal"><div class="mockup tilt" data-tilt>
       <div class="mockup-top"><span id="mockupLive">● Store Dashboard — Live</span><span id="mockupCurrency">$ / USD</span></div>
       <div class="mockup-stats">
         <div class="stat-card"><span id="mockupRevLabel">Today's Revenue</span><strong id="tickRevenue">$847,320</strong></div>
@@ -67,6 +68,7 @@
         <i style="height:32%"></i><i style="height:58%"></i><i style="height:44%"></i><i style="height:78%"></i><i style="height:62%"></i><i style="height:90%"></i><i style="height:54%"></i><i style="height:70%"></i>
       </div>
       <div class="earning-pop" id="earningPop">+ $42.50 just now • Eco-Beauty</div>
+    </div>
     </div>
   </div>
 </section>
@@ -84,6 +86,14 @@
     <div class="section-head reveal">
       <h2 id="portfolioHead">Stores Built for Conversion</h2>
       <p id="portfolioSub">Every store is mobile-first, trust-engineered, and built to lift AOV from day one.</p>
+    </div>
+    <div class="slides reveal" id="featuredSlides" aria-roledescription="carousel" aria-label="Featured stores">
+      <button class="slide-arrow prev" id="slidePrev" aria-label="Previous slide">‹</button>
+      <div class="slide-viewport" id="slideViewport">
+        <div class="slide-track" id="slideTrack"></div>
+      </div>
+      <button class="slide-arrow next" id="slideNext" aria-label="Next slide">›</button>
+      <div class="slide-dots" id="slideDots" role="tablist" aria-label="Choose slide"></div>
     </div>
     <div class="filter-bar" id="portfolioFilters"></div>
     <div class="grid grid-4 reveal" id="portfolioGrid"></div>
