@@ -457,6 +457,142 @@
     }
   })();
 
+  /* ── Global scroll-driven 3D background: fly through space as you scroll ── */
+  (function globalBg() {
+    if (reduceMotion) return;
+    const cv = document.createElement('canvas');
+    cv.id = 'bgGlobal';
+    cv.setAttribute('aria-hidden', 'true');
+    document.body.prepend(cv);
+    const ctx = cv.getContext('2d');
+    const FOCAL = 340;
+    const HUES = ['15,157,88', '124,58,237', '6,182,212', '201,162,39'];
+    let W = 0, H = 0, docH = 1;
+    let pts = [];
+    let camY = 0, camZ = 0, shownY = 0, shownZ = 0, lastY = 0, spinBoost = 0;
+    let shapeAng = 0.6;
+
+    const PHI = (1 + Math.sqrt(5)) / 2;
+    const V3 = [[-1, PHI, 0], [1, PHI, 0], [-1, -PHI, 0], [1, -PHI, 0], [0, -1, PHI], [0, 1, PHI], [0, -1, -PHI], [0, 1, -PHI], [PHI, 0, -1], [PHI, 0, 1], [-PHI, 0, -1], [-PHI, 0, 1]];
+    const E3 = [];
+    for (let i = 0; i < V3.length; i++) for (let j = i + 1; j < V3.length; j++) {
+      const d = Math.hypot(V3[i][0] - V3[j][0], V3[i][1] - V3[j][1], V3[i][2] - V3[j][2]);
+      if (Math.abs(d - 2) < 0.01) E3.push([i, j]);
+    }
+    const shapes = [
+      { at: 0.22, size: 0.10, hue: '124,58,237', spin: 1 },
+      { at: 0.52, size: 0.13, hue: '15,157,88', spin: -0.7 },
+      { at: 0.82, size: 0.11, hue: '6,182,212', spin: 0.85 },
+    ];
+
+    function resize() {
+      const dpr = Math.min(1.25, devicePixelRatio || 1);
+      W = innerWidth; H = innerHeight;
+      cv.width = Math.max(1, W * dpr); cv.height = Math.max(1, H * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      docH = Math.max(1, document.documentElement.scrollHeight - H);
+      const n = W < 720 ? 110 : 210;
+      pts = Array.from({ length: n }, () => ({
+        x: (Math.random() - 0.5) * W * 1.6,
+        y: Math.random(),
+        z: Math.random() * FOCAL,
+        c: HUES[(Math.random() * HUES.length) | 0],
+        r: 0.7 + Math.random() * 1.6,
+      }));
+    }
+    function project(x, yWorld, z, out) {
+      const zz = (((z - shownZ) % FOCAL) + FOCAL) % FOCAL + 24;
+      const s = FOCAL / (FOCAL + zz);
+      out.x = W / 2 + x * s;
+      out.y = H / 2 - (yWorld - shownY) * s;
+      out.s = s;
+      return out;
+    }
+    const tmp = { x: 0, y: 0, s: 1 };
+    function drawShape(sh) {
+      const wy = sh.at * (docH + H);
+      const R = Math.min(W, H) * sh.size;
+      const ax = 0.5 + shapeAng * 0.4 * sh.spin;
+      const ay = shapeAng * sh.spin;
+      const cxA = Math.cos(ax), sxA = Math.sin(ax), cyA = Math.cos(ay), syA = Math.sin(ay);
+      const P = V3.map(v => {
+        const y1 = v[1] * cxA - v[2] * sxA;
+        const x1 = v[0] * cyA + (v[1] * sxA + v[2] * cxA) * syA;
+        const z1 = -v[0] * syA + (v[1] * sxA + v[2] * cxA) * cyA;
+        project(x1 * R, wy + y1 * R, 150 + z1 * 30, tmp);
+        return [tmp.x, tmp.y, tmp.s];
+      });
+      ctx.lineWidth = 1;
+      for (const [a, b] of E3) {
+        const al = (0.30 * (P[a][2] + P[b][2]) / 2).toFixed(3);
+        ctx.beginPath();
+        ctx.moveTo(P[a][0], P[a][1]);
+        ctx.lineTo(P[b][0], P[b][1]);
+        ctx.strokeStyle = `rgba(${sh.hue},${al})`;
+        ctx.stroke();
+      }
+    }
+    function frame() {
+      requestAnimationFrame(frame);
+      if (document.hidden) return;
+      const y = scrollY;
+      spinBoost += ((y - lastY) * 0.0006 - spinBoost) * 0.1;
+      lastY = y;
+      shownY += ((y + H / 2) - shownY) * 0.08;
+      shownZ += ((y * 0.85) - shownZ) * 0.08;
+      shapeAng += 0.004 + Math.min(0.05, Math.abs(spinBoost));
+      ctx.clearRect(0, 0, W, H);
+      for (const p of pts) {
+        project(p.x, p.y * (docH + H), p.z, tmp);
+        if (tmp.x < -20 || tmp.x > W + 20 || tmp.y < -20 || tmp.y > H + 20) continue;
+        const a = Math.min(0.5, tmp.s * 0.42);
+        ctx.beginPath();
+        ctx.arc(tmp.x, tmp.y, Math.max(0.4, p.r * tmp.s), 0, 7);
+        ctx.fillStyle = `rgba(${p.c},${a.toFixed(3)})`;
+        ctx.fill();
+      }
+      for (const sh of shapes) drawShape(sh);
+    }
+    resize();
+    addEventListener('resize', resize);
+    frame();
+  })();
+
+  /* ── Floating orbs in every section, parallaxing while you scroll ── */
+  (function sectionOrbs() {
+    if (reduceMotion) return;
+    const PALETTE = ['15,157,88', '124,58,237', '6,182,212', '201,162,39'];
+    const targets = [...document.querySelectorAll('.section'), $('#proofStrip'), $('#footerSec')].filter(Boolean);
+    const orbs = [];
+    targets.forEach((sec, i) => {
+      if (getComputedStyle(sec).position === 'static') sec.style.position = 'relative';
+      for (let k = 0; k < 2; k++) {
+        const s = document.createElement('span');
+        s.className = 'orb-s';
+        s.setAttribute('aria-hidden', 'true');
+        const sz = 150 + Math.random() * 170;
+        s.style.width = s.style.height = `${sz | 0}px`;
+        s.style.left = `${(Math.random() * 80).toFixed(0)}%`;
+        s.style.top = `${(Math.random() * 65).toFixed(0)}%`;
+        s.style.background = `radial-gradient(circle,rgba(${PALETTE[(i + k) % PALETTE.length]},.15),transparent 70%)`;
+        sec.appendChild(s);
+        orbs.push({ el: s, depth: 0.05 + Math.random() * 0.09, drift: Math.random() * 6.28 });
+      }
+    });
+    (function loop() {
+      requestAnimationFrame(loop);
+      if (document.hidden || !orbs.length) return;
+      const t = performance.now(), vh = innerHeight;
+      for (const o of orbs) {
+        const r = o.el.parentElement.getBoundingClientRect();
+        if (r.bottom < -250 || r.top > vh + 250) continue;
+        const off = (r.top + r.height / 2 - vh / 2) * o.depth;
+        const wob = Math.sin(t / 2600 + o.drift) * 14;
+        o.el.style.transform = `translate3d(0,${(-off + wob).toFixed(1)}px,0)`;
+      }
+    })();
+  })();
+
   stagger(); bindAllTilt(); watchReveals();
   // re-run after dynamic content arrives
   setTimeout(() => { stagger(); bindAllTilt(); watchReveals(); }, 1500);

@@ -329,6 +329,16 @@ html.motion-on .d3{opacity:0;transform:perspective(900px) rotateX(14deg) transla
   .tilt::after{display:none}
 }
 
+/* ══ Scroll-driven 3D backgrounds for every section ══ */
+#bgGlobal{position:fixed;inset:0;z-index:-1;pointer-events:none}
+.section{position:relative}
+.section > .container{position:relative;z-index:1}
+.proof-strip .marquee{position:relative;z-index:1}
+.orb-s{position:absolute;border-radius:50%;filter:blur(60px);pointer-events:none;z-index:0;will-change:transform;opacity:.55}
+@media(prefers-reduced-motion:reduce){
+  #bgGlobal,.orb-s{display:none}
+}
+
 /* ══ Full preview popup (one portfolio → full detail view) ══ */
 .preview-modal{position:fixed;inset:0;z-index:120;display:none;align-items:center;justify-content:center;padding:22px}
 .preview-modal.open{display:flex}
