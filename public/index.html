@@ -17,6 +17,8 @@
 <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
+<div id="scrollProgress"></div>
+<div id="cursorGlow"></div>
 
 <header class="header" id="header">
   <div class="container header-inner">
@@ -37,10 +39,12 @@
   </div>
 </header>
 
-<!-- Hero -->
+<!-- Hero — modern 3D motion -->
 <section class="hero" id="heroSec">
+  <div class="aurora"><canvas id="bgCanvas"></canvas><div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div><div class="orb orb-4"></div></div>
   <div class="container hero-grid">
     <div class="reveal">
+      <span class="hero-eyebrow">✦ Explore · Create · Scale — Venture Studio</span>
       <div class="badge" id="heroBadge"><span class="badge-dot"></span> <span id="badgeText">● Only 7 launch slots left this month</span></div>
       <h1 id="heroHeadline">We Build Stores That <em>Actually</em> Sell.</h1>
       <p class="hero-sub" id="heroSub">The done-for-you E-Commerce Venture Studio for founders who want a high-trust, high-converting storefront — researched, built, and handed over with a 30-day scaling roadmap.</p>
@@ -56,8 +60,14 @@
         </div>
         <span id="heroTrustLine">Trusted by 180+ founders • 4.9/5 average</span>
       </div>
+      <div class="hero-stats-row">
+        <div class="hero-mini-stat"><span class="hero-mini-icon">◈</span><div><b>$127K+</b><small>Client sales tracked</small></div></div>
+        <div class="hero-mini-stat"><span class="hero-mini-icon" style="background:linear-gradient(135deg,#C9A227,#F5D67B)">★</span><div><b>4.9/5</b><small>Founder rating</small></div></div>
+        <div class="hero-mini-stat"><span class="hero-mini-icon" style="background:linear-gradient(135deg,#06B6D4,#7C3AED)">⚡</span><div><b>9 days</b><small>Avg. launch time</small></div></div>
+      </div>
+      <div class="hero-scroll-hint"><span class="mouse"></span> Scroll to explore</div>
     </div>
-    <div class="mockup reveal">
+    <div class="tilt-stage reveal" data-delay="1"><div class="mockup tilt" id="heroMockup" data-tilt>
       <div class="mockup-top"><span id="mockupLive">● Store Dashboard — Live</span><span id="mockupCurrency">$ / USD</span></div>
       <div class="mockup-stats">
         <div class="stat-card"><span id="mockupRevLabel">Today's Revenue</span><strong id="tickRevenue">$847,320</strong></div>
@@ -67,6 +77,9 @@
         <i style="height:32%"></i><i style="height:58%"></i><i style="height:44%"></i><i style="height:78%"></i><i style="height:62%"></i><i style="height:90%"></i><i style="height:54%"></i><i style="height:70%"></i>
       </div>
       <div class="earning-pop" id="earningPop">+ $42.50 just now • Eco-Beauty</div>
+      <div class="float-chip chip-a">🚀 Live Launch<small>+183 stores delivered</small></div>
+      <div class="float-chip chip-b">💰 Payout verified<small>$4,700 / 30 days</small></div>
+    </div>
     </div>
   </div>
 </section>
@@ -78,33 +91,45 @@
   </div>
 </div>
 
-<!-- Portfolio -->
+<!-- Portfolio / Explore -->
 <section class="section" id="portfolio">
   <div class="container">
     <div class="section-head reveal">
-      <h2 id="portfolioHead">Stores Built for Conversion</h2>
+      <span class="eyebrow violet">✦ Explore the work</span>
+      <h2 id="portfolioHead">Stores Built for <span class="hl">Conversion</span></h2>
       <p id="portfolioSub">Every store is mobile-first, trust-engineered, and built to lift AOV from day one.</p>
     </div>
+    <div class="reveal" id="exploreBand">
+      <h3>Explore a modern portfolio — <span>smooth motion, vibrant color, 3D depth.</span></h3>
+      <p>Every section is crafted to showcase creativity, expertise, and results — engaging, clean, professional, and easy to navigate. Hover any card for 3D tilt, click to zoom.</p>
+      <div class="explore-pills">
+        <span class="explore-pill"><i></i> Creativity in every build</span>
+        <span class="explore-pill"><i style="background:#06B6D4;box-shadow:0 0 10px #06B6D4"></i> Expertise you can verify</span>
+        <span class="explore-pill"><i style="background:#C9A227;box-shadow:0 0 10px #C9A227"></i> Results in real numbers</span>
+      </div>
+    </div>
     <div class="filter-bar" id="portfolioFilters"></div>
-    <div class="grid grid-4 reveal" id="portfolioGrid"></div>
+    <div class="grid grid-4 reveal reveal-3d" id="portfolioGrid"></div>
   </div>
 </section>
 
-<!-- Sales Proof -->
+<!-- Sales Proof — results -->
 <section class="section" id="proof" style="background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
   <div class="container">
     <div class="section-head reveal">
-      <h2 id="proofHead">Real Revenue. Real Stores. Real Proof.</h2>
+      <span class="eyebrow green">◈ Results & proof</span>
+      <h2 id="proofHead">Real Revenue. Real Stores. <span class="hl">Real Proof.</span></h2>
       <p id="proofSub">Dashboard screenshots and payout receipts from stores launched through WAYWEALTH. No stock photos.</p>
     </div>
-    <div class="grid grid-3 proof-grid reveal" id="proofGrid"></div>
+    <div class="grid grid-3 proof-grid reveal reveal-3d" id="proofGrid"></div>
   </div>
 </section>
 
-<!-- Experts -->
+<!-- Experts — expertise -->
 <section class="section" id="experts">
   <div class="container">
     <div class="section-head reveal">
+      <span class="eyebrow violet">✦ Expertise</span>
       <h2 id="expertsHead">Meet the Experts Behind Every Build</h2>
       <p id="expertsSub">Specialists in product research, conversion design, and fulfillment — one team, one outcome.</p>
     </div>
@@ -112,10 +137,11 @@
   </div>
 </section>
 
-<!-- Process -->
+<!-- Process — creativity system -->
 <section class="section" id="process" style="background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
   <div class="container">
     <div class="section-head reveal">
+      <span class="eyebrow gold">⚡ Creativity → System</span>
       <h2 id="processHead">How It Works — The 4-Step Launch Engine</h2>
       <p id="processSub">From niche validation to handover — a proven system, not guesswork.</p>
     </div>
@@ -127,10 +153,11 @@
 <section class="section" id="certificates" style="background:#fafafa;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
   <div class="container">
     <div class="section-head reveal">
+      <span class="eyebrow">★ Awards & trust</span>
       <h2 id="certificatesHead">Certificates & Awards</h2>
       <p id="certificatesSub">Recognized for excellence — verified badges, partnerships and industry awards that prove our track record.</p>
     </div>
-    <div class="grid grid-3 reveal" id="certificatesGrid"></div>
+    <div class="grid grid-3 reveal reveal-3d" id="certificatesGrid"></div>
   </div>
 </section>
 
@@ -138,6 +165,7 @@
 <section class="section" id="pricing">
   <div class="container">
     <div class="section-head reveal">
+      <span class="eyebrow green">◈ Simple pricing</span>
       <h2 id="pricingHead">Investment & Packages</h2>
       <p id="pricingSub">Transparent packages. Full ownership. No hidden royalties.</p>
     </div>
@@ -148,7 +176,7 @@
 <!-- Testimonials -->
 <section class="section" id="testimonials" style="background:#fff;border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
   <div class="container">
-    <div class="section-head reveal"><h2 id="testimonialsHead">What Founders Say</h2><p id="testimonialsSub" class="muted" style="margin-top:8px"></p></div>
+    <div class="section-head reveal"><span class="eyebrow violet">♥ Founder stories</span><h2 id="testimonialsHead">What Founders Say</h2><p id="testimonialsSub" class="muted" style="margin-top:8px"></p></div>
     <div class="grid grid-3 reveal" id="testimonialsGrid"></div>
   </div>
 </section>
@@ -156,7 +184,7 @@
 <!-- FAQ -->
 <section class="section" id="faq">
   <div class="container">
-    <div class="section-head reveal"><h2 id="faqHead">Questions, Answered Honestly</h2><p id="faqSub" class="muted" style="margin-top:8px"></p></div>
+    <div class="section-head reveal"><span class="eyebrow">? Easy answers</span><h2 id="faqHead">Questions, Answered Honestly</h2><p id="faqSub" class="muted" style="margin-top:8px"></p></div>
     <div class="faq reveal" id="faqList"></div>
   </div>
 </section>
@@ -242,7 +270,9 @@
 </footer>
 
 <div class="lightbox" id="lightbox"><button class="lightbox-close" id="lbClose">×</button><img id="lbImg" src="" alt=""></div>
+<button id="toTop" aria-label="Back to top">↑</button>
 
 <script src="/js/main.js"></script>
+<script src="/js/motion.js"></script>
 </body>
 </html>
